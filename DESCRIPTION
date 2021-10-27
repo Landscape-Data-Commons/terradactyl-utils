@@ -1,0 +1,36 @@
+Package: terradactutyls
+Type: Package
+Title: Minor Utility Functions for Creating and Maintaining TerrADat
+Version: 0.1
+Author: c(person(given="Sarah", family="McCord", role=c("aut", "cre"), email="sarah.mccord@ars.usda.gov"), person(given="Nelson", family="Stauffer", role="aut"))
+Maintainer: Sarah McCord <sarah.mccord@usda.gov>
+Description: Access, tidy, and calculate standard indicators for data from the BLM AIM program, the BLM LMF program, and the NRCS NRI monitoring programs.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.2
+Imports:
+    dplyr,
+    stringr,
+    tidyr, 
+    sf, 
+    magrittr, 
+    rlang,
+    utils,
+    stats
+Suggests: 
+    testthat,
+    knitr,
+    rmarkdown, 
+    RODBC, 
+    devtools,
+    odbc,
+    purrr,
+    raster,
+    readr,
+    rlist,
+    rstudioapi,
+    sp,
+    usethis
+Depends: R (>= 2.10)
+VignetteBuilder: knitr
