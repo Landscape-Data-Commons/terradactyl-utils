@@ -4,6 +4,8 @@
 #' @param data The table to edit
 #' @return A table without observer or recorder
 
+#' @rdname forget_who
+#' @export forget_who
 forget_who <- function(data){
   out <- data %>% 
     dplyr::select_if(!(names(.) %in% c("Observer", "Recorder", "DataEntry", "DataErrorChecking")))

@@ -1,0 +1,10 @@
+devtools::build()
+devtools::document()
+devtools::load_all()
+
+d <- data.frame("b" = 1,
+                "Observer" = "yourbutt")
+forget_who(d)
+fetch_api("dima", "tblPlots")
+
+devtools::install_github(repo = "landscape-data-commons/terradactylUtils")
