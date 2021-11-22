@@ -2,7 +2,7 @@
 % Please edit documentation in R/forget_who.R
 \name{forget_who}
 \alias{forget_who}
-\title{Remove observer and recorder from a table}
+\title{Remove observer, recorder, and similar from a table}
 \usage{
 forget_who(data)
 }
@@ -10,8 +10,8 @@ forget_who(data)
 \item{data}{The table to edit}
 }
 \value{
-A table without observer or recorder
+A table without names
 }
 \description{
-Given a table, return it without observer, recorder, data enterer, or data checker
+Given a table, return it without names of data collectors
 }
