@@ -1,7 +1,9 @@
-## this taken from the back half of build_indicators. 
-## add in all indicators columns from the "TerrADat" layer in a template GDB
+#' add in all indicators columns from the "TerrADat" layer in a template GDB
+#' @description Add indicator columns to terradat from a template
 
-
+## add indicator names
+#' @rdname add_indicator_columns
+#' @export add_indicator_columns
 add_indicator_columns <- function(dsn_template,
                              source,
                              all_indicators){
