@@ -4,14 +4,14 @@
 ## add indicator names
 #' @rdname add_indicator_columns
 #' @export add_indicator_columns
-add_indicator_columns <- function(dsn_template,
+add_indicator_columns <- function(template,
                              source,
                              all_indicators,
-                             prefixes_to_zero = c("AH", "FH", "Num")){
+                             prefixes_to_zero = c("AH", "FH", "NumSpp", "Spp")){
   
-  if(length(dsn_template) == 1) {
+  if(length(template) == 1) {
     feature_class_field_names <- 
-      sf::st_read(dsn_template, 
+      sf::st_read(template, 
                 layer = dplyr::if_else(source %in% c("AIM", "TerrADat"), "TerrADat", source))
     feature_class_field_names <- 
       feature_class_field_names[,!colnames(feature_class_field_names) %in% 
@@ -19,8 +19,8 @@ add_indicator_columns <- function(dsn_template,
                                     "last_edited_user", "last_edited_date")] %>%
       names()
   } else {
-    print(paste0("dsn_template not read as file path, treating as list of columns to include"))
-    feature_class_field_names <- dsn_template
+    print(paste0("template not read as file path, treating as list of columns to include"))
+    feature_class_field_names <- template
   }
    
   indicator_field_names <- 
@@ -37,7 +37,7 @@ add_indicator_columns <- function(dsn_template,
     dplyr::select_if(!(names(.) %in% c("Shape", "GlobalID")))
   missing_names[nrow(all_indicators), ] <- NA
   
-  regexprefix <- paste0("^", paste(prefixes_to_zero, collapse = "|^"))
+  regexprefix <- paste0("^", paste(prefixes_to_zero, collapse = "_|^"), "_")
   
   missing_names[, grepl(names(missing_names), pattern = regexprefix)] <- 0
   
