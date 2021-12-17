@@ -1,4 +1,4 @@
-#' add in all indicators columns from the "TerrADat" layer in a template GDB
+#' add in all indicators columns from the "TerrADat" layer in a template GDB or a provided list
 #' @description Add indicator columns to terradat from a template
 
 ## add indicator names
@@ -7,27 +7,38 @@
 add_indicator_columns <- function(dsn_template,
                              source,
                              all_indicators){
-  feature_class_field_names <- 
-    sf::st_read(dsn_template, 
+  
+  if(length(dsn_template) == 1) {
+    feature_class_field_names <- 
+      sf::st_read(dsn_template, 
                 layer = dplyr::if_else(source %in% c("AIM", "TerrADat"), "TerrADat", source))
-  feature_class_field_names <- 
-    feature_class_field_names[,!colnames(feature_class_field_names) %in% 
-                                c("created_user", "created_date", 
-                                  "last_edited_user", "last_edited_date")]
+    feature_class_field_names <- 
+      feature_class_field_names[,!colnames(feature_class_field_names) %in% 
+                                  c("created_user", "created_date", 
+                                    "last_edited_user", "last_edited_date")] %>%
+      names()
+  } else {
+    print(paste0("dsn_template not read as file path, treating as list of columns to include"))
+    feature_class_field_names <- dsn_template
+  }
+   
   indicator_field_names <- 
     data.frame(name = names(all_indicators), 
                calculated = "yes")
   missing_names <- 
-    data.frame(name = names(feature_class_field_names), 
+    # data.frame(name = names(feature_class_field_names),  # changed when adding variable input, names() now happens above in the first if
+    data.frame(name = feature_class_field_names,
                feature.class = "yes") %>% 
     dplyr::full_join(indicator_field_names) %>% 
     subset(is.na(calculated), select = "name") %>% 
     dplyr::mutate(value = NA) %>% 
     tidyr::spread(key = name, value = value) %>% 
-    dplyr::select(-Shape, 
-                  -GlobalID)
+    dplyr::select_if(!(names(.) %in% c("Shape", "GlobalID")))
   missing_names[nrow(all_indicators), ] <- NA
   missing_names[, grepl(names(missing_names), pattern = "^FH|^AH|^Num")] <- 0
+  
+  missing_names[, grepl(names(missing_names), pattern = "^FH|^AH|^Num|Spp")] <- 0 ### jrb added this 12-17. Should spp indicators get zeroes?
+  
   final_feature_class <- dplyr::bind_cols(all_indicators, 
                                           missing_names)
   
