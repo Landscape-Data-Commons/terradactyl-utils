@@ -4,7 +4,12 @@
 \alias{add_indicator_columns}
 \title{add in all indicators columns from the "TerrADat" layer in a template GDB or a provided list}
 \usage{
-add_indicator_columns(dsn_template, source, all_indicators)
+add_indicator_columns(
+  dsn_template,
+  source,
+  all_indicators,
+  prefixes_to_zero = c("AH", "FH", "Num")
+)
 }
 \description{
 Add indicator columns to terradat from a template

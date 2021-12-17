@@ -6,7 +6,8 @@
 #' @export add_indicator_columns
 add_indicator_columns <- function(dsn_template,
                              source,
-                             all_indicators){
+                             all_indicators,
+                             prefixes_to_zero = c("AH", "FH", "Num")){
   
   if(length(dsn_template) == 1) {
     feature_class_field_names <- 
@@ -35,9 +36,10 @@ add_indicator_columns <- function(dsn_template,
     tidyr::spread(key = name, value = value) %>% 
     dplyr::select_if(!(names(.) %in% c("Shape", "GlobalID")))
   missing_names[nrow(all_indicators), ] <- NA
-  missing_names[, grepl(names(missing_names), pattern = "^FH|^AH|^Num")] <- 0
   
-  missing_names[, grepl(names(missing_names), pattern = "^FH|^AH|^Num|Spp")] <- 0 ### jrb added this 12-17. Should spp indicators get zeroes?
+  regexprefix <- paste0("^", paste(prefixes_to_zero, collapse = "|^"))
+  
+  missing_names[, grepl(names(missing_names), pattern = regexprefix)] <- 0
   
   final_feature_class <- dplyr::bind_cols(all_indicators, 
                                           missing_names)
