@@ -19,7 +19,6 @@ add_indicator_columns <- function(template,
                                     "last_edited_user", "last_edited_date")] %>%
       names()
   } else {
-    print(paste0("template not read as file path, treating as list of columns to include"))
     feature_class_field_names <- template
   }
    

@@ -5,9 +5,9 @@
 \alias{fetch_api}
 \title{Fetch DIMA data from the Landscape Data Commons API (requires internet connection)}
 \usage{
-fetch_api_single(api, endpoint, values = NULL, verbose = T)
+fetch_api_single(endpoint, values = NULL, verbose = T, api = "dima")
 
-fetch_api(api, endpoint, values = NULL)
+fetch_api(endpoint, values = NULL, api = "dima")
 }
 \arguments{
 \item{endpoint}{Character string or list. Name of the requested table e.g. "tblPlots". 
@@ -16,6 +16,8 @@ Provide a list of character strings to download more than one table.}
 \item{values}{Optional. JSON query as character string. If a list of endpoints is provided, the filter column must be present in all requested tables.}
 
 \item{verbose}{If true, print the URL of the requested record.}
+
+\item{api}{URL prefix specifying the API to access. Use "dima".}
 }
 \value{
 A data frame containing DIMA data of the requested table, or a list

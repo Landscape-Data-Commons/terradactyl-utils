@@ -1,12 +1,16 @@
 #' Fetch DIMA data from the Landscape Data Commons API (requires internet connection)
 #'
 #' @description Given a table name and optional field query, download DIMA data from the API.
+
 #' @param endpoint Character string or list. Name of the requested table e.g. "tblPlots". 
 #' Provide a list of character strings to download more than one table. 
 #' @param values Optional. JSON query as character string. If a list of endpoints is provided, the filter column must be present in all requested tables.
 #' @param verbose If true, print the URL of the requested record.
+#' @param api URL prefix specifying the API to access. Use "dima".
+
 #' @return A data frame containing DIMA data of the requested table, or a list
 #' of data frames containing the requested tables. 
+
 #' @examples 
 #' data_allplots <- fetch_api(endpoint = "tblPlots", values = NULL)
 #' 
@@ -18,7 +22,7 @@
 ## Fetch data for a single table
 #' @rdname fetch_api
 #' @export fetch_api_single
-fetch_api_single <- function(api, endpoint, values = NULL, verbose = T){
+fetch_api_single <- function(endpoint, values = NULL, verbose = T, api = "dima"){
 
   if(is.null(values)){
     url <- paste0("https://", api, ".landscapedatacommons.org/api/",endpoint)
@@ -36,7 +40,7 @@ fetch_api_single <- function(api, endpoint, values = NULL, verbose = T){
 ## wrapper, automatically detecting if multiple tables are requested
 #' @export fetch_api
 #' @rdname fetch_api
-fetch_api <- function(api, endpoint, values=NULL) {
+fetch_api <- function(endpoint, values=NULL, api = "dima") {
   api <- tolower(api)
   if(class(endpoint) == "list"){
     print(paste("Fetching", length(endpoint), "tables"))
