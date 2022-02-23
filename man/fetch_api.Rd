@@ -3,34 +3,40 @@
 \name{fetch_api_single}
 \alias{fetch_api_single}
 \alias{fetch_api}
-\title{Fetch DIMA data from the Landscape Data Commons API (requires internet connection)}
+\alias{fetch_ldc_single}
+\alias{fetch_ldc}
+\title{Fetch DIMA data from the Landscape Data Commons API}
 \usage{
-fetch_api_single(endpoint, values = NULL, verbose = T, api = "dima")
+fetch_api_single(api, endpoint, values = NULL, verbose = T)
 
-fetch_api(endpoint, values = NULL, api = "dima")
+fetch_api(endpoint, values = NULL, api = "dima", verbose = T)
+
+fetch_ldc_single(endpoint, values = NULL, verbose = T)
+
+fetch_ldc(endpoint, values = NULL, verbose = T)
 }
 \arguments{
+\item{api}{URL prefix specifying the API to access. Use "dima" or "api".}
+
 \item{endpoint}{Character string or list. Name of the requested table e.g. "tblPlots". 
 Provide a list of character strings to download more than one table.}
 
 \item{values}{Optional. JSON query as character string. If a list of endpoints is provided, the filter column must be present in all requested tables.}
 
 \item{verbose}{If true, print the URL of the requested record.}
-
-\item{api}{URL prefix specifying the API to access. Use "dima".}
 }
 \value{
 A data frame containing DIMA data of the requested table, or a list
 of data frames containing the requested tables.
 }
 \description{
-Given a table name and optional field query, download DIMA data from the API.
+Given a table name and optional field query, download DIMA data from the online Landscape Data Commons API (api.landscapedatacommons.org). Fetch_api is not intended for public use, but can access both dima.landscapedatacommons.org and api.landscapedatacommons.org.
 }
 \examples{
-data_allplots <- fetch_api(endpoint = "tblPlots", values = NULL)
+indicators_all <- fetch_ldc(endpoint = "geoIndicators")
 
-data_JERplots <- fetch_api(endpoint = "tblPlots", values = "ProjectKey=JER")
+indicators_NorCal15 <- fetch_ldc(endpoint = "geoIndicators", values = "ProjectName=California NorCal 2015")
 
-data_gap <- fetch_api(endpoint = list("tblGapHeader", "tblGapDetail"), 
-                       values = "PrimaryKey=15050113465465692020-09-15")
+data_gap <- fetch_ldc(endpoint = list("dataHeader", "dataGap"))
+data_gap_NorCal15 <- fetch_ldc(endpoint = list("dataHeader", "dataGap"), values = "ProjectName=California NorCal 2015")
 }
