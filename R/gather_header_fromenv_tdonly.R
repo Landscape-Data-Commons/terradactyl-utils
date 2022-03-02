@@ -1,3 +1,4 @@
+#' Generate header from tblPlots object
 #' @description Generate a header file from a tblPlots object in the environment. TEMPORARY! Need to fold this in to terradactyl.
 #' @return A dataframe equivalent to what is produced by gather_header()
 

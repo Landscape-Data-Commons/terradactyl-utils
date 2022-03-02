@@ -9,7 +9,7 @@
 \usage{
 fetch_api_single(api, endpoint, values = NULL, verbose = T)
 
-fetch_api(endpoint, values = NULL, api = "dima", verbose = T)
+fetch_api(endpoint, values = NULL, api, verbose = T)
 
 fetch_ldc_single(endpoint, values = NULL, verbose = T)
 
@@ -30,7 +30,12 @@ A data frame containing DIMA data of the requested table, or a list
 of data frames containing the requested tables.
 }
 \description{
-Given a table name and optional field query, download DIMA data from the online Landscape Data Commons API (api.landscapedatacommons.org). Fetch_api is not intended for public use, but can access both dima.landscapedatacommons.org and api.landscapedatacommons.org.
+Given a table name and optional field query, download DIMA data 
+from the online Landscape Data Commons API (api.landscapedatacommons.org). 
+Fetch_api is not intended for public use, but can access both 
+dima.landscapedatacommons.org and api.landscapedatacommons.org. The function 
+'fetch_ldc' can only access api.landscapedatacommons.org, and is 
+suitable for sharing outside of the LDC group.
 }
 \examples{
 indicators_all <- fetch_ldc(endpoint = "geoIndicators")

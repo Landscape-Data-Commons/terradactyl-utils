@@ -49,7 +49,7 @@ fetch_api_single <- function(api, endpoint, values = NULL, verbose = T){
 ## wrapper, automatically detecting if multiple tables are requested
 #' @export fetch_api
 #' @rdname fetch_api
-fetch_api <- function(endpoint, values=NULL, api = "dima", verbose = T) {
+fetch_api <- function(endpoint, values=NULL, api, verbose = T) {
   api <- tolower(api)
   if(class(endpoint) == "list"){
     print(paste("Fetching", length(endpoint), "tables"))
