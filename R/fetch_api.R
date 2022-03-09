@@ -26,8 +26,8 @@
 
 ## Fetch data for a single table
 #' @rdname fetch_api
-#' @export fetch_api_single
-fetch_api_single <- function(api, endpoint, values = NULL, verbose = T){
+#' @export fetch_api
+fetch_api <- function(api, endpoint, values = NULL, verbose = T){
   values <- gsub(" ", "%20", values)
   
   api <- tolower(api)
@@ -46,26 +46,10 @@ fetch_api_single <- function(api, endpoint, values = NULL, verbose = T){
   return(df)
 }
 
-## wrapper, automatically detecting if multiple tables are requested
-#' @export fetch_api
-#' @rdname fetch_api
-fetch_api <- function(endpoint, values=NULL, api, verbose = T) {
-  api <- tolower(api)
-  if(class(endpoint) == "list"){
-    print(paste("Fetching", length(endpoint), "tables"))
-    out <- lapply(endpoint, fetch_api_single, values = values, api = api, verbose = verbose)
-    names(out) <- endpoint
-  } else {
-    out <- fetch_api_single(endpoint = endpoint, values = values, api = api, verbose = verbose)
-  }
-  
-  return(out)
-}
-
 ## Fetch data from API for a single table 
 #' @rdname fetch_api
-#' @export fetch_ldc_single
-fetch_ldc_single <- function(endpoint, values = NULL, verbose = T){
+#' @export fetch_ldc
+fetch_ldc <- function(endpoint, values = NULL, verbose = T){
   values <- gsub(" ", "%20", values)
   
   if(is.null(values)){
@@ -79,18 +63,4 @@ fetch_ldc_single <- function(endpoint, values = NULL, verbose = T){
   jsonize <- jsonlite::fromJSON(flat_get, flatten = TRUE)
   df <- as.data.frame(jsonize)
   return(df)
-}
-
-## wrapper, automatically detecting if multiple tables are requested
-#' @export fetch_ldc
-#' @rdname fetch_api
-fetch_ldc <- function(endpoint, values=NULL, verbose = T) {
-  if(class(endpoint) == "list"){
-    print(paste("Fetching", length(endpoint), "tables"))
-    out <- lapply(endpoint, fetch_ldc_single, values = values, verbose = verbose)
-    names(out) <- endpoint
-  } else {
-    out <- fetch_ldc_single(endpoint = endpoint, values = values, verbose = verbose)
-  }
-  return(out)
 }

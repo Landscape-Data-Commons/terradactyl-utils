@@ -4,7 +4,7 @@
 \alias{translate_schema}
 \title{Translate between schema given a table of associated columns}
 \usage{
-translate_schema(data, matrix, fromcol, tocol, verbose)
+translate_schema(data, matrix, fromcol, tocol, dropcols = T, verbose = T)
 }
 \description{
 Given data and a table associating two schema, translate the data into the new schema

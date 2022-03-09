@@ -9,45 +9,75 @@ translate_schema <- function(
   matrix,
   fromcol,
   tocol,
-  verbose){
-  # matrix <- submatrix
-  # data <- ldcdata
-  # from <- "Column2"
-  # to <- "Column1"
-  # verbose = T
+  dropcols = T,
+  verbose = T){
+  # matrix <- submatrix; data <- ldcdata; fromcol <- "Column2"; tocol <- "Column1"; verbose = T; dropcols = T
   
+  ### standardize names
   ### could not figure out the dplyr::rename version of this
   colnames(matrix)[colnames(matrix) == fromcol] <- "FromColumn"
   colnames(matrix)[colnames(matrix) == tocol] <- "ToColumn"
   
+  
+  ### process the incoming matrix based on actions to take
   matrix_processed <- 
     matrix %>% 
-    dplyr::select(FromColumn, ToColumn) %>%
-    dplyr::mutate(MissingCol = is.na(ToColumn) & !is.na(FromColumn)) %>%
-    dplyr::mutate(ToColumn = dplyr::coalesce(ToColumn, FromColumn)) %>%
-    dplyr::mutate(ToChange = ToColumn != FromColumn)
+    dplyr::filter(!is.na(ToColumn) | !is.na(FromColumn)) %>%
+    dplyr::select(FromColumn, ToColumn) %>% 
+    dplyr::mutate(
+      DropColumn = !is.na(FromColumn) & is.na(ToColumn),
+      AddColumn = !is.na(ToColumn) & is.na(FromColumn),
+      ChangeColumn = !is.na(ToColumn) & !is.na(FromColumn) & ToColumn != FromColumn,
+      NoAction = ToColumn == FromColumn & !AddColumn & !DropColumn,
+      Checksum = AddColumn + DropColumn + ChangeColumn + NoAction,
+    )
   
-  tochange <- 
-    matrix_processed %>% 
-    dplyr::filter(ToChange)
-  
-  toadd <- 
+    ## check for errors (if errors are here the function is not working)  
+  errors <-
     matrix_processed %>%
-    dplyr::filter(MissingCol)
+    dplyr::filter(Checksum != 1)
+
+  if(nrow(errors) > 0) {print("Errors found in translation matrix. Debug function.")
+                              return(errors)}
   
-  if(verbose) {
-    print(paste0(nrow(tochange), " columns to rename"))
-    print(tochange[,c("FromColumn", "ToColumn")])}
+  ChangeColumn <- 
+    matrix_processed %>% 
+    dplyr::filter(ChangeColumn)
   
-  if(verbose) {
-    print(paste0(nrow(toadd), " columns to add to output"))
-    print(toadd$ToColumn)}
+  AddColumn <- 
+    matrix_processed %>%
+    dplyr::filter(AddColumn)
   
+  DropColumn <-
+    matrix_processed %>%
+    dplyr::filter(DropColumn)
+ 
+
+
   ## run translation and add data
   outdata <- data %>%
     dplyr::rename_at(
-      tochange$FromColumn, ~ tochange$ToColumn) %>%
-    `is.na<-`(toadd$ToColumn)
+      ChangeColumn$FromColumn, ~ ChangeColumn$ToColumn) %>%
+    `is.na<-`(AddColumn$ToColumn)
   
+  # drop columns from prior schema if enabled
+  if(dropcols){
+    outdata <- outdata %>%
+      dplyr::select_if(!colnames(.) %in% DropColumn$FromColumn)
+  }
+  
+  if(verbose) {
+    print(paste0(nrow(ChangeColumn), " columns renamed"))
+    print(ChangeColumn[,c("FromColumn", "ToColumn")])}
+  
+  if(verbose) {
+    print(paste0(nrow(AddColumn), " columns added"))
+    print(AddColumn$ToColumn)}
+  
+  if(verbose & dropcols) {
+    print(paste0(nrow(DropColumn), " columns removed"))
+    print(DropColumn$FromColumn)
+  }
   return(outdata)
 }
+
