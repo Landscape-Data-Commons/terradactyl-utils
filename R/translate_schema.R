@@ -18,8 +18,7 @@ translate_schema <- function(
   colnames(matrix)[colnames(matrix) == fromcol] <- "FromColumn"
   colnames(matrix)[colnames(matrix) == tocol] <- "ToColumn"
   
-  
-  ### process the incoming matrix based on actions to take
+  ### process the incoming matrix by assigning actions to take at each row
   matrix_processed <- 
     matrix %>% 
     dplyr::filter(!is.na(ToColumn) | !is.na(FromColumn)) %>%
@@ -52,8 +51,6 @@ translate_schema <- function(
     matrix_processed %>%
     dplyr::filter(DropColumn)
  
-
-
   ## run translation and add data
   outdata <- data %>%
     dplyr::rename_at(
@@ -66,6 +63,7 @@ translate_schema <- function(
       dplyr::select_if(!colnames(.) %in% DropColumn$FromColumn)
   }
   
+  # return messages if verbose
   if(verbose) {
     print(paste0(nrow(ChangeColumn), " columns renamed"))
     print(ChangeColumn[,c("FromColumn", "ToColumn")])}
