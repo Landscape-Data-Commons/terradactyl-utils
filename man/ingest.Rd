@@ -5,7 +5,7 @@
 \alias{ingest_indicators_gdb}
 \title{Prepare tall data for ingestion into the data commons}
 \usage{
-ingest_coremethods(path_tall, path_out, path_schema, verbose = F)
+ingest_coremethods(path_tall, path_out, path_schema, projectkey, verbose = F)
 
 ingest_indicators_gdb(path_terradat, path_out, path_schema, verbose = F)
 }

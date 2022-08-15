@@ -9,6 +9,7 @@ translate_schema <- function(
   matrix,
   fromcol,
   tocol,
+  projectkey,
   dropcols = T,
   verbose = T){
   # matrix <- submatrix; data <- ldcdata; fromcol <- "Column2"; tocol <- "Column1"; verbose = T; dropcols = T
@@ -63,6 +64,8 @@ translate_schema <- function(
       dplyr::select_if(!colnames(.) %in% DropColumn$FromColumn)
   }
   
+  outdata$ProjectKey <- projectkey
+  
   # return messages if verbose
   if(verbose) {
     print(paste0(nrow(ChangeColumn), " columns renamed"))
@@ -76,6 +79,7 @@ translate_schema <- function(
     print(paste0(nrow(DropColumn), " columns removed"))
     print(DropColumn$FromColumn)
   }
+  
   return(outdata)
 }
 
