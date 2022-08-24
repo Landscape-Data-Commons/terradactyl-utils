@@ -15,10 +15,9 @@ translate_schema <- function(
   # matrix <- submatrix; data <- ldcdata; fromcol <- "Column2"; tocol <- "Column1"; verbose = T; dropcols = T
   
   ### standardize names
+  ### could not figure out the dplyr::rename version of this
   colnames(matrix)[colnames(matrix) == fromcol] <- "FromColumn"
   colnames(matrix)[colnames(matrix) == tocol] <- "ToColumn"
-  
-  matrix[,tocol] <- str_trim(matrix[,tocol], side = "both")
   
   ### process the incoming matrix by assigning actions to take at each row
   matrix_processed <- 
