@@ -21,7 +21,7 @@ translate_schema <- function(
   matrix_processed <- 
     matrix %>% 
     dplyr::mutate(
-      ToColumn <- str_trim(ToColumn, side = "both")
+      ToColumn <- str_trim(ToColumn, side = "both"),
       FromColumn <- str_trim(FromColumn, side = "both")
     ) %>%
     dplyr::filter(!is.na(ToColumn) | !is.na(FromColumn)) %>%
