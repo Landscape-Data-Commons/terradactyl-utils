@@ -46,21 +46,25 @@ fetch_api <- function(api, endpoint, values = NULL, verbose = T){
   return(df)
 }
 
-## Fetch data from API for a single table 
-#' @rdname fetch_api
-#' @export fetch_ldc
-fetch_ldc <- function(endpoint, values = NULL, verbose = T){
-  values <- gsub(" ", "%20", values)
+# ## Fetch data from API for a single table 
+# #' @rdname fetch_api
+# #' @export fetch_ldc
+# fetch_ldc <- function(endpoint, values = NULL, verbose = T){
+#   values <- gsub(" ", "%20", values)
+#  
+#   if(is.null(values)){
+#     url <- paste0("https://api.landscapedatacommons.org/api/",endpoint)
+#   } else {
+#     url <- paste0("https://api.landscapedatacommons.org/api/",endpoint,"?",values)
+#   }
+#   if(verbose) print(paste("Accessing", url))
+#   get_url <- httr::GET(url) 
+#   flat_get <- httr::content(get_url, "text", encoding = "UTF-8")
+#   jsonize <- jsonlite::fromJSON(flat_get, flatten = TRUE)
+#   df <- as.data.frame(jsonize)
+#   return(df)
+# }
   
-  if(is.null(values)){
-    url <- paste0("https://api.landscapedatacommons.org/api/",endpoint)
   } else {
-    url <- paste0("https://api.landscapedatacommons.org/api/",endpoint,"?",values)
   }
-  if(verbose) print(paste("Accessing", url))
-  get_url <- httr::GET(url) 
-  flat_get <- httr::content(get_url, "text", encoding = "UTF-8")
-  jsonize <- jsonlite::fromJSON(flat_get, flatten = TRUE)
-  df <- as.data.frame(jsonize)
-  return(df)
 }
