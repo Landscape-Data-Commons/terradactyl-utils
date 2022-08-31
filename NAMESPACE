@@ -2,7 +2,6 @@
 
 export("%>%")
 export(add_indicator_columns)
-export(fetch_api)
 export(fetch_ldc)
 export(fetch_postgres)
 export(forget_who)
