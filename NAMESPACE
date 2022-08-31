@@ -2,7 +2,7 @@
 
 export("%>%")
 export(add_indicator_columns)
-export(ecosite_qc)
+export(fetch_ldc)
 export(fetch_postgres)
 export(forget_who)
 export(ingest_coremethods)
