@@ -21,8 +21,7 @@ translate_schema <- function(
   matrix_processed <- 
     matrix %>% 
     dplyr::mutate(
-      ToColumn <- str_trim(ToColumn, side = "both"),
-      FromColumn <- str_trim(FromColumn, side = "both")
+      ToColumn <- stringr::str_trim(ToColumn, side = "both"),
     ) %>%
     dplyr::filter(!is.na(ToColumn) | !is.na(FromColumn)) %>%
     dplyr::select(FromColumn, ToColumn) %>% 
@@ -42,6 +41,9 @@ translate_schema <- function(
   if(nrow(errors) > 0) {print("Errors found in translation matrix. Debug function.")
                               return(errors)}
   
+  
+  
+  
   ChangeColumn <- 
     matrix_processed %>% 
     dplyr::filter(ChangeColumn)
@@ -60,27 +62,39 @@ translate_schema <- function(
       ChangeColumn$FromColumn, ~ ChangeColumn$ToColumn) %>%
     `is.na<-`(AddColumn$ToColumn)
   
-  # drop columns from prior schema if enabled
-  if(dropcols){
-    outdata <- outdata %>%
-      dplyr::select_if(!colnames(.) %in% DropColumn$FromColumn)
+  # # drop columns from prior schema if enabled
+  # if(dropcols){
+  #   outdata <- outdata %>%
+  #     dplyr::select_if(!colnames(.) %in% DropColumn$FromColumn)
+  # }
+  
+  # select only the tables in the out schema
+  goodnames <- matrix_processed %>% dplyr::filter(!is.na(ToColumn)) %>% dplyr::pull(ToColumn)
+  
+  if(verbose) {
+    print(paste("Returning", length(goodnames), "columns"))
+    print(all_of(goodnames))
   }
+  
+  outdata <- outdata %>%
+    dplyr::select(goodnames)
+  
   
   outdata$ProjectKey <- projectkey
-  
-  # return messages if verbose
-  if(verbose) {
-    print(paste0(nrow(ChangeColumn), " columns renamed"))
-    print(ChangeColumn[,c("FromColumn", "ToColumn")])}
-  
-  if(verbose) {
-    print(paste0(nrow(AddColumn), " columns added"))
-    print(AddColumn$ToColumn)}
-  
-  if(verbose & dropcols) {
-    print(paste0(nrow(DropColumn), " columns removed"))
-    print(DropColumn$FromColumn)
-  }
+  # 
+  # # return messages if verbose
+  # if(verbose) {
+  #   print(paste0(nrow(ChangeColumn), " columns renamed"))
+  #   print(ChangeColumn[,c("FromColumn", "ToColumn")])}
+  # 
+  # if(verbose) {
+  #   print(paste0(nrow(AddColumn), " columns added"))
+  #   print(AddColumn$ToColumn)}
+  # 
+  # if(verbose & dropcols) {
+  #   print(paste0(nrow(DropColumn), " columns removed"))
+  #   print(DropColumn$FromColumn)
+  # }
   
   return(outdata)
 }
