@@ -70,6 +70,7 @@ ingest_coremethods <- function(path_tall, path_out, path_schema, projectkey, ver
   }
   
   if(file.exists(file.path(path_tall, "gap_tall.Rdata"))){
+    print("Translating canopy gap data")
     tall_gap <- readRDS(file.path(path_tall, "gap_tall.Rdata"))
     dataGap <- tall_gap %>% 
       translate_schema(
