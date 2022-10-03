@@ -4,7 +4,7 @@ Title: Minor Utility Functions for Creating and Maintaining TerrADat
 Version: 0.1
 Author: person(given="Joe", family="Brehm", role=c("aut", "cre"), email="jrbrehm@nmsu.edu")
 Maintainer: Joe Brehm <jrbrehm@nmsu.edu>
-Description: Access, tidy, and calculate standard indicators for data from the BLM AIM program, the BLM LMF program, and the NRCS NRI monitoring programs.
+Description: Minor utility functions for use with terradat
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

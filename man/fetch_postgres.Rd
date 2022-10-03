@@ -6,6 +6,7 @@
 \usage{
 fetch_postgres(
   tbl,
+  projectkey,
   schema = "dimadev",
   host = "jornada-ldc2.jrn.nmsu.edu",
   port = 5432,

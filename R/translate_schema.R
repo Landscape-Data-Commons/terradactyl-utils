@@ -73,7 +73,7 @@ translate_schema <- function(
   
   if(verbose) {
     print(paste("Returning", length(goodnames), "columns"))
-    print(all_of(goodnames))
+    print(dplyr::all_of(goodnames))
   }
   
   outdata <- outdata %>%
