@@ -27,3 +27,27 @@ fetch_postgres <-
     
     return(out)
   }
+
+#' @rdname fetch_postgres
+#' @export fetch_primarykeys
+fetch_projectkeys <-
+  function(schema,
+           host="jornada-ldc2.jrn.nmsu.edu",
+           port=5432,
+           dbname="postgres",
+           user="dima_get",
+           password="dima@1912!"){
+    
+    con <- DBI::dbConnect(RPostgres::Postgres(), 
+                          dbname = dbname, 
+                          host=host, 
+                          port=port, 
+                          user=user, 
+                          password=password)
+    
+    query1 <- paste0('SELECT "ProjectKey" FROM "', schema, '"."tblPlots"')
+    ProjectKeys <- DBI::dbGetQuery(con, query1) %>% unique()
+
+    return(ProjectKeys)
+  }
+
