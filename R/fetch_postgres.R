@@ -45,7 +45,7 @@ fetch_projectkeys <-
                           user=user, 
                           password=password)
     
-    query1 <- paste0('SELECT "ProjectKey" FROM "', schema, '"."tblPlots"')
+    query1 <- paste0('SELECT "project_key" FROM "', schema, '"."Projects"')
     ProjectKeys <- DBI::dbGetQuery(con, query1) %>% unique()
 
     return(ProjectKeys)
