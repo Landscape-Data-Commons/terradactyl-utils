@@ -29,7 +29,7 @@ fetch_postgres <-
   }
 
 #' @rdname fetch_postgres
-#' @export fetch_primarykeys
+#' @export fetch_projectkeys
 fetch_projectkeys <-
   function(schema,
            host="jornada-ldc2.jrn.nmsu.edu",
