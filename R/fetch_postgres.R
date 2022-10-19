@@ -22,7 +22,7 @@ fetch_postgres <-
     tblPlots <- DBI::dbGetQuery(con, query1)
     dbkeys = unique(tblPlots$DBKey)
     
-    query2 <- paste0('SELECT * FROM "', tbl, '" WHERE "DBKey" IN ', paste0("('", paste0(dbkeys,  collapse = "', '"), "')"))
+    query2 <- paste0('SELECT * FROM "',schema, '"."', tbl, '" WHERE "DBKey" IN ', paste0("('", paste0(dbkeys,  collapse = "', '"), "')"))
     out <- DBI::dbGetQuery(con, query2)
     
     return(out)

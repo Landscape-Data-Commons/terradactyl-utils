@@ -7,7 +7,8 @@
 \title{Delete data from the postgres database based on a projectkey}
 \usage{
 delete_postgres(
-  projectkey,
+  key,
+  by = "projectkey",
   schema = "dimadev",
   host = "jornada-ldc2.jrn.nmsu.edu",
   port = 5432,

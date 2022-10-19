@@ -4,13 +4,17 @@
 #' @export fetch_postgres
 
 delete_postgres <- 
-  function(projectkey,
+  function(key,
+           by = "projectkey",
            schema = "dimadev",
            host = "jornada-ldc2.jrn.nmsu.edu",
            port = 5432,
            dbname = "postgres",
            user = "dima_get",
            password = "dima@1912!"){
+    
+    user_input <- readline("Are you sure you want to run this? (y/n)  ")
+    if(user_input != 'y') stop('Better safe than sorry')
     
     con <- DBI::dbConnect(RPostgres::Postgres(), 
                           dbname = dbname, 
@@ -19,9 +23,17 @@ delete_postgres <-
                           user=user, 
                           password=password)
     
-    query1 <- paste0('SELECT * FROM "', schema, '"."tblPlots" WHERE "ProjectKey" = ', "'", projectkey, "'")
-    tblPlots <- DBI::dbGetQuery(con, query1)
-    dbkeys = unique(tblPlots$DBKey)
+    if(by == "projectkey") {
+      projectkey <- key
+      query1 <- paste0('SELECT * FROM "', schema, '"."tblPlots" WHERE "ProjectKey" = ', "'", projectkey, "'")
+      tblPlots <- DBI::dbGetQuery(con, query1)
+      dbkeys = unique(tblPlots$DBKey)
+    } else if (by == "dbkey"){
+      dbkeys <- key
+    } else {
+      stop("'by' must be either projectkey or dbkey")
+    }
+    
     
     l.tables <- list(#"tblDKDetail", "tblDKHeader", 
                      # "tblESDRockFragments", 

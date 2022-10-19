@@ -2,7 +2,7 @@
 % Please edit documentation in R/ingest.R
 \name{ingest_DIMA}
 \alias{ingest_DIMA}
-\alias{ingest_coremethods}
+\alias{translate_coremethods}
 \alias{ingest_indicators_gdb}
 \title{Take data from public postgres server and prepare them for ingestion}
 \usage{
@@ -20,7 +20,13 @@ ingest_DIMA(
   doGSP = T
 )
 
-ingest_coremethods(path_tall, path_out, path_schema, projectkey, verbose = F)
+translate_coremethods(
+  path_tall,
+  path_out,
+  path_schema,
+  projectkey,
+  verbose = F
+)
 
 ingest_indicators_gdb(path_terradat, path_out, path_schema, verbose = F)
 }
