@@ -133,9 +133,7 @@ ingest_DIMA <- function(projectkey,
     tblHorizontalFlux <- tblHorizontalFlux %>% 
       dplyr::rename(DateLoadedInDb = DateLoadedInDB) %>%
       dplyr::mutate(ProjectKey = projectkey,
-                    DateEstablished = NA,
-                    BoxID = as.character(BoxID),
-                    StackID = as.character(StackID)) %>%
+                    DateEstablished = NA) %>%
       dplyr::select(-PlotKey, -Collector, -labTech, -rid)
     
     # saveRDS(tblHorizontalFlux, file.path(path_tall, "dataHorizontalFlux.rdata"))
@@ -161,7 +159,7 @@ ingest_DIMA <- function(projectkey,
       dplyr::right_join(header %>% dplyr::select(PrimaryKey, DateVisited)) %>%
       dplyr::mutate(BoxID = as.character(BoxID),
                     StackID = as.character(StackID),
-                    PlotKey = as.character(PlotKey),
+                    # PlotKey = as.character(PlotKey),
                     RecKey = as.character(RecKey))
     write.csv(tblHorizontalFlux, file.path(path_foringest, "dataHorizontalFlux.csv"), row.names = F)
   }
