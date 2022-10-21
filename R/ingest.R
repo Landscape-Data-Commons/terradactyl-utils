@@ -122,6 +122,7 @@ ingest_DIMA <- function(projectkey,
     tblSoilStabHeader = NULL
   }
   
+  
   if(doHF){
     tblHorizontalFlux <- fetch_postgres("tblHorizontalFlux", schema = "public", projectkey = projectkey)
     # no gather needed here
@@ -129,19 +130,21 @@ ingest_DIMA <- function(projectkey,
     dropcols_hf <- tblHorizontalFlux %>% dplyr::select(-"DBKey")
     tblHorizontalFlux <- tblHorizontalFlux[which(!duplicated(dropcols_hf)),]
     
-    tblHorizontalFlux <- tblHorizontalFlux %>% dplyr::rename(DateLoadedInDb = DateLoadedInDB)
+    tblHorizontalFlux <- tblHorizontalFlux %>% 
+      dplyr::rename(DateLoadedInDb = DateLoadedInDB) %>%
+      dplyr::mutate(ProjectKey = projectkey,
+                    DateEstablished = NA,
+                    BoxID = as.character(BoxID),
+                    StackID = as.character(StackID)) %>%
+      dplyr::select(-PlotKey, -Collector, -labTech, -rid)
     
-    saveRDS(tblHorizontalFlux, file.path(path_tall, "dataHorizontalFlux.rdata"))
-    write.csv(tblHorizontalFlux, file.path(path_tall, "dataHorizontalFlux.csv"), row.names = F)
-    
-    # write tblHorizontalFlux if it is populated
-    # no gather function or schema translation needed for this one
-    if(nrow(tblHorizontalFlux > 0)){
-      write.csv(tblHorizontalFlux, file.path(path_foringest, "dataHorizontalFlux.csv"), row.names = F)
-    }
+    # saveRDS(tblHorizontalFlux, file.path(path_tall, "dataHorizontalFlux.rdata"))
+    # write.csv(tblHorizontalFlux, file.path(path_tall, "dataHorizontalFlux.csv"), row.names = F)
+
   } else {
     tblHorizontalFlux = NULL
   }
+
   
   header <- gather_header(dsn = NULL, source = "AIM", tblPlots = tblPlots, date_tables = list(tblLPIHeader, tblGapHeader, 
                                                                                               tblSpecRichHeader, tblHorizontalFlux))
@@ -152,6 +155,13 @@ ingest_DIMA <- function(projectkey,
   write.csv(header, file.path(path_tall, "header.csv"), row.names = F)
   saveRDS(header, file.path(path_tall, "header.rdata"))
   
+  # attach date to horizontalflux
+  if(nrow(tblHorizontalFlux > 0)){
+    tblHorizontalFlux <- tblHorizontalFlux %>%
+      dplyr::right_join(header %>% dplyr::select(PrimaryKey, DateVisited))
+    write.csv(tblHorizontalFlux, file.path(path_foringest, "dataHorizontalFlux.csv"), row.names = F)
+  }
+    
   # translate tall
   translate_coremethods(path_tall = path_tall,
                      path_out = path_foringest,
@@ -269,7 +279,6 @@ ingest_DIMA <- function(projectkey,
 }
 
 
-## deprecated ingest tools
 #' @rdname ingest
 #' @export translate_coremethods
 translate_coremethods <- function(path_tall, path_out, path_schema, projectkey, verbose = F){
