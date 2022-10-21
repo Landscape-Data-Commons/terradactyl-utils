@@ -158,7 +158,11 @@ ingest_DIMA <- function(projectkey,
   # attach date to horizontalflux
   if(nrow(tblHorizontalFlux > 0)){
     tblHorizontalFlux <- tblHorizontalFlux %>%
-      dplyr::right_join(header %>% dplyr::select(PrimaryKey, DateVisited))
+      dplyr::right_join(header %>% dplyr::select(PrimaryKey, DateVisited)) %>%
+      dplyr::mutate(BoxID = as.character(BoxID),
+                    StackID = as.character(StackID),
+                    PlotKey = as.character(PlotKey),
+                    RecKey = as.character(RecKey))
     write.csv(tblHorizontalFlux, file.path(path_foringest, "dataHorizontalFlux.csv"), row.names = F)
   }
     
