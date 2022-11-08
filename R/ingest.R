@@ -197,7 +197,7 @@ ingest_DIMA <- function(projectkey,
       height_tall = file.path(path_tall, "height_tall.rdata"),
       header = header,
       source = "AIM",
-      species_file = path_templatetd
+      species_file = path_specieslist
     )
   } else {
     h <- NULL
@@ -262,9 +262,24 @@ ingest_DIMA <- function(projectkey,
   
   if(doGSP){
     a <- accumulated_species(
-      lpi_tall = file.path(path_tall, "lpi_tall.rdata"),
-      height_tall = file.path(path_tall, "height_tall.rdata"),
-      spp_inventory_tall = file.path(path_tall, "species_inventory_tall.rdata"),
+      lpi_tall = 
+        if(file.exists(file.path(path_tall, "lpi_tall.rdata"))){
+          file.path(path_tall, "lpi_tall.rdata")
+        } else {
+          NULL
+        },
+      height_tall = 
+        if(file.exists(file.path(path_tall, "height_tall.rdata"))){
+          file.path(path_tall, "height_tall.rdata")
+        } else {
+          NULL
+        },
+      spp_inventory_tall = 
+        if(file.exists(file.path(path_tall, "species_inventory_tall.rdata"))){
+          file.path(path_tall, "species_inventory_tall.rdata")
+        } else {
+          NULL
+        },
       header = file.path(path_tall, "header.rdata"),
       species_file = path_specieslist,
       dead = F,
@@ -394,4 +409,31 @@ ingest_indicators_gdb  <- function(path_terradat, path_out, path_schema, verbose
 
   return(list(geoIndicators, geoSpecies))
 
+}
+
+
+unify_primary_keys <- function(path_foringest) {
+  # geoIndicators <- read.csv(file.path(path_foringest, "geoIndicators.csv"))
+  # dataHeader <- read.csv(file.path(path_foringest, "dataHeader.csv"))
+  paths_allfiles <- list.files(
+    path = path_foringest,
+    pattern = ".csv",
+    recursive = F,
+  )
+  
+  allfiles <- sapply(paths_allfiles, function(p){
+    read.csv(file.path(path_foringest, p))
+  })
+  
+  goodpkeys <- allfiles$geoIndicators.csv$PrimaryKey
+  allfiles_pkeysdropped <- sapply(allfiles, function(t){
+    t %>% dplyr::filter(PrimaryKey %in% goodpkeys)
+  })
+  
+  sapply(1:length(allfiles), function(i){
+    write.csv(allfiles_pkeysdropped[[i]], file.path(path_foringest, "/Unified PrimaryKeys", names(allfiles)[i]))
+    return(allfiles_pkeysdropped[[i]])
+  })
+  
+  return(allfiles_pkeysdropped)
 }
