@@ -4,12 +4,13 @@
 fetch_postgres <- 
   function(tbl,
            projectkey,
+           user,
+           password,
            schema = "dimadev",
            host="jornada-ldc2.jrn.nmsu.edu",
            port=5432,
-           dbname="postgres",
-           user="dima_get",
-           password="dima@1912!"){
+           dbname="postgres"
+  ){
     
     con <- DBI::dbConnect(RPostgres::Postgres(), 
                           dbname = dbname, 
