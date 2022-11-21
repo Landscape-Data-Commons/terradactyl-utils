@@ -8,12 +8,12 @@
 fetch_postgres(
   tbl,
   projectkey,
+  user,
+  password,
   schema = "dimadev",
   host = "jornada-ldc2.jrn.nmsu.edu",
   port = 5432,
-  dbname = "postgres",
-  user = "dima_get",
-  password = "dima@1912!"
+  dbname = "postgres"
 )
 
 fetch_projectkeys(

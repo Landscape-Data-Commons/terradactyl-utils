@@ -11,6 +11,18 @@ add_indicator_columns(
   prefixes_to_zero = c("AH", "FH", "NumSpp", "Spp")
 )
 }
+\arguments{
+\item{template}{String or data frame. A path to a geodatabase containing your template table, or the template table itself.}
+
+\item{source}{String. Name of the layer to be read from the geodatabase, if provided. If "AIM" or "TerrADat", layer TerrADat will be read.}
+
+\item{all_indicators}{Data frame. Indicator data that is missing columns.}
+
+\item{prefixes_to_zero}{Vector of column prefixes to return 0 for rather than NA. Defaults to "AH", "FH", "NumSpp", and "Spp".}
+}
+\value{
+A data frame containing the data from all_indicators, with added NA or 0 columns.
+}
 \description{
-Add indicator columns to terradat from a template
+Add indicator columns to terradat from a template.
 }
