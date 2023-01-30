@@ -36,8 +36,8 @@ fetch_projectkeys <-
            host="jornada-ldc2.jrn.nmsu.edu",
            port=5432,
            dbname="postgres",
-           user="dima_get",
-           password="dima@1912!"){
+           user,
+           password){
     
     con <- DBI::dbConnect(RPostgres::Postgres(), 
                           dbname = dbname, 

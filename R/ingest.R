@@ -11,7 +11,9 @@ ingest_DIMA <- function(projectkey,
                         doHt = T,
                         doRH = T, # not yet implemented
                         doHF = T,
-                        doGSP = T){
+                        doGSP = T,
+                        user = NULL,
+                        password = NULL){
   
   # Set paths, based on the suffix. Creates file folders if needed
   path_parent <- paste0("C:/Users/jrbrehm/Documents/Data/", projectkey)
@@ -30,14 +32,14 @@ ingest_DIMA <- function(projectkey,
   ### drop any duplicate rows (rows where dbkey and dateloadedindb are the only differences)
   ### write tall
   
-  tblPlots <- fetch_postgres("tblPlots", schema = "public", projectkey = projectkey)
+  tblPlots <- fetch_postgres("tblPlots", schema = "public", projectkey = projectkey, user = user, password = password)
   tblPlots$SpeciesState <- projectkey
   
   write.csv(tblPlots, file.path(path_dimatables, "tblPlots.csv"), row.names = F)
   
   if(doGap){
-    tblGapHeader <- fetch_postgres("tblGapHeader", schema = "public", projectkey = projectkey)
-    tblGapDetail <- fetch_postgres("tblGapDetail", schema = "public", projectkey = projectkey)
+    tblGapHeader <- fetch_postgres("tblGapHeader", schema = "public", projectkey = projectkey, user = user, password = password)
+    tblGapDetail <- fetch_postgres("tblGapDetail", schema = "public", projectkey = projectkey, user = user, password = password)
     write.csv(tblGapHeader, file.path(path_dimatables, "tblGapHeader.csv"), row.names = F)
     write.csv(tblGapDetail, file.path(path_dimatables, "tblGapDetail.csv"), row.names = F)
     
@@ -54,8 +56,8 @@ ingest_DIMA <- function(projectkey,
   }
   
   if(doLPI){
-    tblLPIHeader <- fetch_postgres("tblLPIHeader", schema = "public", projectkey = projectkey)
-    tblLPIDetail <- fetch_postgres("tblLPIDetail", schema = "public", projectkey = projectkey)
+    tblLPIHeader <- fetch_postgres("tblLPIHeader", schema = "public", projectkey = projectkey, user = user, password = password)
+    tblLPIDetail <- fetch_postgres("tblLPIDetail", schema = "public", projectkey = projectkey, user = user, password = password)
     write.csv(tblLPIHeader, file.path(path_dimatables, "tblLPIHeader.csv"), row.names = F)
     write.csv(tblLPIDetail, file.path(path_dimatables, "tblLPIDetail.csv"), row.names = F)
     
@@ -73,8 +75,8 @@ ingest_DIMA <- function(projectkey,
   
   if(doHt){
     if(!doLPI) {
-      tblLPIHeader <- fetch_postgres("tblLPIHeader", schema = "public", projectkey = projectkey)
-      tblLPIDetail <- fetch_postgres("tblLPIDetail", schema = "public", projectkey = projectkey)
+      tblLPIHeader <- fetch_postgres("tblLPIHeader", schema = "public", projectkey = projectkey, user = user, password = password)
+      tblLPIDetail <- fetch_postgres("tblLPIDetail", schema = "public", projectkey = projectkey, user = user, password = password)
       write.csv(tblLPIHeader, file.path(path_dimatables, "tblLPIHeader.csv"), row.names = F)
       write.csv(tblLPIDetail, file.path(path_dimatables, "tblLPIDetail.csv"), row.names = F)
     }
@@ -87,8 +89,8 @@ ingest_DIMA <- function(projectkey,
   }
   
   if(doSR){
-    tblSpecRichHeader <- fetch_postgres("tblSpecRichHeader", schema = "public", projectkey = projectkey)
-    tblSpecRichDetail <- fetch_postgres("tblSpecRichDetail", schema = "public", projectkey = projectkey)
+    tblSpecRichHeader <- fetch_postgres("tblSpecRichHeader", schema = "public", projectkey = projectkey, user = user, password = password)
+    tblSpecRichDetail <- fetch_postgres("tblSpecRichDetail", schema = "public", projectkey = projectkey, user = user, password = password)
     write.csv(tblSpecRichHeader, file.path(path_dimatables, "tblSpecRichHeader.csv"), row.names = F)
     write.csv(tblSpecRichDetail, file.path(path_dimatables, "tblSpecRichDetail.csv"), row.names = F)
     
@@ -106,8 +108,8 @@ ingest_DIMA <- function(projectkey,
   
   if(doSS){
     # this section entirely untested
-    tblSoilStabHeader <- fetch_postgres("tblSoilStabHeader", schema = "public", projectkey = projectkey)
-    tblSoilStabDetail <- fetch_postgres("tblSoilStabDetail", schema = "public", projectkey = projectkey)
+    tblSoilStabHeader <- fetch_postgres("tblSoilStabHeader", schema = "public", projectkey = projectkey, user = user, password = password)
+    tblSoilStabDetail <- fetch_postgres("tblSoilStabDetail", schema = "public", projectkey = projectkey, user = user, password = password)
     write.csv(tblSoilStabHeader, file.path(path_dimatables, "tblSoilStabHeader.csv"), row.names = F)
     write.csv(tblSoilStabDetail, file.path(path_dimatables, "tblSoilStabDetail.csv"), row.names = F)
     
@@ -124,7 +126,7 @@ ingest_DIMA <- function(projectkey,
   
   
   if(doHF){
-    tblHorizontalFlux <- fetch_postgres("tblHorizontalFlux", schema = "public", projectkey = projectkey)
+    tblHorizontalFlux <- fetch_postgres("tblHorizontalFlux", schema = "public", projectkey = projectkey, user = user, password = password)
     # no gather needed here
     
     dropcols_hf <- tblHorizontalFlux %>% dplyr::select(-"DBKey")
@@ -156,7 +158,7 @@ ingest_DIMA <- function(projectkey,
   # attach date to horizontalflux
   if(nrow(tblHorizontalFlux > 0)){
     tblHorizontalFlux <- tblHorizontalFlux %>%
-      dplyr::right_join(header %>% dplyr::select(PrimaryKey, DateVisited)) %>%
+      dplyr::left_join(header %>% dplyr::select(PrimaryKey, DateVisited)) %>%
       dplyr::mutate(BoxID = as.character(BoxID),
                     StackID = as.character(StackID),
                     # PlotKey = as.character(PlotKey),
@@ -317,7 +319,7 @@ translate_coremethods <- function(path_tall, path_out, path_schema, projectkey, 
   if(file.exists(file.path(path_tall, "lpi_tall.Rdata"))){
     print("Translating LPI data")
     tall_lpi <- readRDS(file.path(path_tall, "lpi_tall.Rdata")) %>%
-      dplyr::right_join(dataHeader %>% dplyr::select(PrimaryKey, DateVisited, DBKey))
+      dplyr::left_join(dataHeader %>% dplyr::select(PrimaryKey, DateVisited, DBKey))
      dataLPI <- tall_lpi %>%
       translate_schema(
         matrix = subset(fullmatrix, Table2 == "dataLPI"),
@@ -330,7 +332,7 @@ translate_coremethods <- function(path_tall, path_out, path_schema, projectkey, 
   if(file.exists(file.path(path_tall, "height_tall.Rdata"))){
     print("Translating height data")
     tall_ht  <- readRDS(file.path(path_tall, "height_tall.Rdata")) %>%
-      dplyr::right_join(dataHeader %>% dplyr::select(PrimaryKey, DateVisited, DBKey))
+      dplyr::left_join(dataHeader %>% dplyr::select(PrimaryKey, DateVisited, DBKey))
     dataHeight <- tall_ht %>%
       translate_schema(
         matrix = subset(fullmatrix, Table2 == "dataHeight"),
@@ -343,7 +345,7 @@ translate_coremethods <- function(path_tall, path_out, path_schema, projectkey, 
   if(file.exists(file.path(path_tall, "species_inventory_tall.Rdata"))){
     print("Translating species inventory data")
     tall_sr  <- readRDS(file.path(path_tall, "species_inventory_tall.Rdata")) %>%
-      dplyr::right_join(dataHeader %>% dplyr::select(PrimaryKey, DateVisited, DBKey))
+      dplyr::left_join(dataHeader %>% dplyr::select(PrimaryKey, DateVisited, DBKey))
     dataSpeciesInventory <- tall_sr %>%
       translate_schema(
         matrix = subset(fullmatrix, Table2 == "dataSpeciesInventory"),
@@ -357,7 +359,7 @@ translate_coremethods <- function(path_tall, path_out, path_schema, projectkey, 
   if(file.exists(file.path(path_tall, "soil_stability_tall.Rdata"))){
     print("Translating soil stability data")
     tall_ss  <- readRDS(file.path(path_tall, "soil_stability_tall.Rdata")) %>%
-      dplyr::right_join(dataHeader %>% dplyr::select(PrimaryKey, DateVisited, DBKey))
+      dplyr::left_join(dataHeader %>% dplyr::select(PrimaryKey, DateVisited, DBKey))
     dataSoilStability <- tall_ss %>%
       translate_schema(
         matrix = subset(fullmatrix, Table2 == "dataSoilStability"),
@@ -370,7 +372,7 @@ translate_coremethods <- function(path_tall, path_out, path_schema, projectkey, 
   if(file.exists(file.path(path_tall, "gap_tall.Rdata"))){
     print("Translating canopy gap data")
     tall_gap <- readRDS(file.path(path_tall, "gap_tall.Rdata")) %>%
-      dplyr::right_join(dataHeader %>% dplyr::select(PrimaryKey, DateVisited, DBKey))
+      dplyr::left_join(dataHeader %>% dplyr::select(PrimaryKey, DateVisited, DBKey))
     dataGap <- tall_gap %>%
       translate_schema(
         matrix = subset(fullmatrix, Table2 == "dataGap"),
