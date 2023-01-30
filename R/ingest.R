@@ -286,7 +286,7 @@ ingest_DIMA <- function(projectkey,
       species_file = path_specieslist,
       dead = F,
       source = "AIM") %>% 
-      dplyr::right_join(header %>% dplyr::select(PrimaryKey, DateVisited, DBKey)) %>% 
+      dplyr::left_join(header %>% dplyr::select(PrimaryKey, DateVisited, DBKey)) %>% 
       translate_schema(matrix = subset(readxl::read_xlsx("C:/Users/jrbrehm/Documents/GitHub/workspace/Schema Translation/Translation.xlsx"), 
                                        Table2 == "geoSpecies"), tocol = "Column2", fromcol = "Column1", projectkey = "NDOW")
     
