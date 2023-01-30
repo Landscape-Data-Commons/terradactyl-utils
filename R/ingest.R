@@ -287,6 +287,8 @@ ingest_DIMA <- function(projectkey,
       dead = F,
       source = "AIM") %>% 
       dplyr::left_join(header %>% dplyr::select(PrimaryKey, DateVisited, DBKey)) %>% 
+      dplyr::filter(!(is.na(AH_SpeciesCover) & is.na(AH_SpeciesCover_n) & 
+                        is.na(Hgt_Species_Avg) & is.na(Hgt_Species_Avg_n))) %>%
       translate_schema(matrix = subset(readxl::read_xlsx("C:/Users/jrbrehm/Documents/GitHub/workspace/Schema Translation/Translation.xlsx"), 
                                        Table2 == "geoSpecies"), tocol = "Column2", fromcol = "Column1", projectkey = "NDOW")
     
