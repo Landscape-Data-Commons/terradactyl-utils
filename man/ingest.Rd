@@ -17,7 +17,9 @@ ingest_DIMA(
   doHt = T,
   doRH = T,
   doHF = T,
-  doGSP = T
+  doGSP = T,
+  user = NULL,
+  password = NULL
 )
 
 translate_coremethods(
