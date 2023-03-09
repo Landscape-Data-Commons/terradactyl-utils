@@ -30,10 +30,13 @@ ingest_DIMA <- function(projectkey,
   ### save dima tables to path_dimatables
   ### gather 
   ### drop any duplicate rows (rows where dbkey and dateloadedindb are the only differences)
+  ### drop rows without coordinates
   ### write tall
   
   tblPlots <- fetch_postgres("tblPlots", schema = "public", projectkey = projectkey, user = user, password = password)
   tblPlots$SpeciesState <- projectkey
+  
+  pkeys <- dplyr::filter(tblPlots, !is.na(Latitude) & !is.na(Longitude)) %>% dplyr::pull(PrimaryKey)
   
   write.csv(tblPlots, file.path(path_dimatables, "tblPlots.csv"), row.names = F)
   
@@ -43,10 +46,11 @@ ingest_DIMA <- function(projectkey,
     write.csv(tblGapHeader, file.path(path_dimatables, "tblGapHeader.csv"), row.names = F)
     write.csv(tblGapDetail, file.path(path_dimatables, "tblGapDetail.csv"), row.names = F)
     
-    tall_gap <- gather_gap(source = "AIM", tblGapHeader = tblGapHeader, tblGapDetail = tblGapDetail)
+    tall_gap <- gather_gap(source = "AIM", tblGapHeader = tblGapHeader, tblGapDetail = tblGapDetail) %>% dplyr::filter(PrimaryKey %in% pkeys)
     
     dropcols_gap <- tall_gap %>% dplyr::select(-"DBKey")
-    tall_gap <- tall_gap[which(!duplicated(dropcols_gap)),]
+    tall_gap <- tall_gap[which(!duplicated(dropcols_gap)),] %>%
+      dplyr::filter(PrimaryKey %in% pkeys)
     
     saveRDS(tall_gap, file.path(path_tall, "gap_tall.rdata"))
     write.csv(tall_gap, file.path(path_tall, "gap_tall.csv"), row.names = F)
@@ -64,7 +68,8 @@ ingest_DIMA <- function(projectkey,
     tall_lpi <- gather_lpi(source = "AIM", tblLPIDetail = tblLPIDetail, tblLPIHeader = tblLPIHeader)
     
     dropcols_lpi <- tall_lpi %>% dplyr::select(-"DBKey")
-    tall_lpi <- tall_lpi[which(!duplicated(dropcols_lpi)),]
+    tall_lpi <- tall_lpi[which(!duplicated(dropcols_lpi)),] %>%
+      dplyr::filter(PrimaryKey %in% pkeys)
     
     saveRDS(tall_lpi, file.path(path_tall, "lpi_tall.rdata"))
     write.csv(tall_lpi, file.path(path_tall, "lpi_tall.csv"), row.names = F)
@@ -82,7 +87,9 @@ ingest_DIMA <- function(projectkey,
     }
     tall_height <- gather_height(source = "AIM", tblLPIDetail = tblLPIDetail, tblLPIHeader = tblLPIHeader)
     dropcols_height <- tall_height %>% dplyr::select(-"DBKey")
-    tall_height <- tall_height[which(!duplicated(dropcols_height)),]
+    tall_height <- tall_height[which(!duplicated(dropcols_height)),] %>%
+      dplyr::filter(PrimaryKey %in% pkeys)
+    
     saveRDS(tall_height, file.path(path_tall, "height_tall.rdata"))
     write.csv(tall_height, file.path(path_tall, "height_tall.csv"), row.names = F)
     
@@ -97,7 +104,8 @@ ingest_DIMA <- function(projectkey,
     tall_speciesinventory <- gather_species_inventory(source = "AIM", tblSpecRichDetail = tblSpecRichDetail, tblSpecRichHeader = tblSpecRichHeader)
     
     dropcols_speciesinventory <- tall_speciesinventory %>% dplyr::select(-"DBKey")
-    tall_speciesinventory <- tall_speciesinventory[which(!duplicated(dropcols_speciesinventory)),]
+    tall_speciesinventory <- tall_speciesinventory[which(!duplicated(dropcols_speciesinventory)),] %>%
+      dplyr::filter(PrimaryKey %in% pkeys)
     
     saveRDS(tall_speciesinventory, file.path(path_tall, "species_inventory_tall.rdata"))
     write.csv(tall_speciesinventory, file.path(path_tall, "species_inventory_tall.csv"), row.names = F)
@@ -116,7 +124,8 @@ ingest_DIMA <- function(projectkey,
     tall_soilstability <- gather_soil_stability(source = "AIM", tblSoilStabHeader = tblSoilStabHeader, tblSoilStabDetail = tblSoilStabDetail)
     
     dropcols_soilstability <- tall_soilstability %>% dplyr::select(-"DBKey")
-    tall_soilstability <- tall_soilstability[which(!duplicated(dropcols_soilstability)),]
+    tall_soilstability <- tall_soilstability[which(!duplicated(dropcols_soilstability)),] %>%
+      dplyr::filter(PrimaryKey %in% pkeys)
     
     saveRDS(tall_soilstability, file.path(path_tall, "soil_stability_tall.rdata"))
     write.csv(tall_soilstability, file.path(path_tall, "soil_stability_tall.csv"), row.names = F)
@@ -136,7 +145,8 @@ ingest_DIMA <- function(projectkey,
       dplyr::rename(DateLoadedInDb = DateLoadedInDB) %>%
       dplyr::mutate(ProjectKey = projectkey,
                     DateEstablished = NA) %>%
-      dplyr::select(-PlotKey, -Collector, -labTech, -rid)
+      dplyr::select(-PlotKey, -Collector, -labTech, -rid) %>%
+      dplyr::filter(PrimaryKey %in% pkeys)
     
     # saveRDS(tblHorizontalFlux, file.path(path_tall, "dataHorizontalFlux.rdata"))
     # write.csv(tblHorizontalFlux, file.path(path_tall, "dataHorizontalFlux.csv"), row.names = F)
