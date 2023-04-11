@@ -34,6 +34,11 @@ ingest_DIMA <- function(projectkey,
   ### write tall
   
   tblPlots <- fetch_postgres("tblPlots", schema = "public", projectkey = projectkey, user = user, password = password)
+  
+  if(nrow(tblPlots) == 0){
+    stop("tblPlots has no rows in postgres server")
+  }
+  
   tblPlots$SpeciesState <- projectkey
   
   pkeys <- dplyr::filter(tblPlots, !is.na(Latitude) & !is.na(Longitude)) %>% dplyr::pull(PrimaryKey)
@@ -305,7 +310,7 @@ ingest_DIMA <- function(projectkey,
     write.csv(a, file.path(path_foringest, "geoSpecies.csv"), row.names = F)
     
   }
-  
+
   return(geoInd)
 }
 
@@ -425,8 +430,12 @@ ingest_indicators_gdb  <- function(path_terradat, path_out, path_schema, verbose
 
 }
 
-
-unify_primary_keys <- function(path_foringest) {
+#' @rdname ingest
+#' @export new_data_only
+new_data_only <- function(projectkey) {
+  
+  path_foringest <- paste0("C:/Users/jrbrehm/Documents/Data/", projectkey, "/For Ingest")
+  
   # geoIndicators <- read.csv(file.path(path_foringest, "geoIndicators.csv"))
   # dataHeader <- read.csv(file.path(path_foringest, "dataHeader.csv"))
   paths_allfiles <- list.files(
@@ -435,19 +444,27 @@ unify_primary_keys <- function(path_foringest) {
     recursive = F,
   )
   
+  geoInd_existing <- trex::fetch_ldc(keys = projectkey, key_type = "ProjectKey", data_type = "indicators")
+  
   allfiles <- sapply(paths_allfiles, function(p){
     read.csv(file.path(path_foringest, p))
   })
   
   goodpkeys <- allfiles$geoIndicators.csv$PrimaryKey
+  
+  goodpkeys <- goodpkeys[!goodpkeys %in% geoInd_existing$PrimaryKey]
+  
   allfiles_pkeysdropped <- sapply(allfiles, function(t){
     t %>% dplyr::filter(PrimaryKey %in% goodpkeys)
   })
   
+  if(!dir.exists(file.path(path_foringest, "/New Data Only"))) dir.create(file.path(path_foringest, "/New Data Only"))
+  
   sapply(1:length(allfiles), function(i){
-    write.csv(allfiles_pkeysdropped[[i]], file.path(path_foringest, "/Unified PrimaryKeys", names(allfiles)[i]))
+    write.csv(allfiles_pkeysdropped[[i]], file.path(path_foringest, "/New Data Only", names(allfiles)[i]), row.names = F)
     return(allfiles_pkeysdropped[[i]])
   })
   
   return(allfiles_pkeysdropped)
 }
+
