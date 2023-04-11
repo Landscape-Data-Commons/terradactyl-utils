@@ -4,6 +4,7 @@
 \alias{ingest_DIMA}
 \alias{translate_coremethods}
 \alias{ingest_indicators_gdb}
+\alias{new_data_only}
 \title{Take data from public postgres server and prepare them for ingestion}
 \usage{
 ingest_DIMA(
@@ -31,6 +32,8 @@ translate_coremethods(
 )
 
 ingest_indicators_gdb(path_terradat, path_out, path_schema, verbose = F)
+
+new_data_only(projectkey)
 }
 \description{
 Take data from public postgres server and prepare them for ingestion

@@ -4,7 +4,7 @@
 \alias{extract_table}
 \title{Extract a table from a DIMA}
 \usage{
-extract_table(data.path, dima, query)
+extract_table(dima.path, query)
 }
 \description{
 Given path, a filename, and a query, extract a table from a DIMA
