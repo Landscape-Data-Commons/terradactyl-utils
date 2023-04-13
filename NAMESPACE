@@ -2,6 +2,7 @@
 
 export("%>%")
 export(add_indicator_columns)
+export(dima_prep)
 export(ecosite_qc)
 export(extract_table)
 export(fetch_postgres)

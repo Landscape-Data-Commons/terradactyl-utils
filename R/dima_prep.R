@@ -1,3 +1,9 @@
+#' Attach PrimaryKeys to DIMA Tables
+#'
+#' @description Given path to a DIMA and a designation for SpeciesState, create an R object (list) containing DIMA tables with PrimaryKeys appended
+
+#' @rdname dima_prep
+#' @export dima_prep
 dima_prep <- function(path_dima, speciesstate, path_out = NULL, remove_invalid_keys = T){
   
   # Get DBKey (name of the DIMA) from the file path
