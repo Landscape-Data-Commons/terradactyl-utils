@@ -1,6 +1,10 @@
 #' Attach PrimaryKeys to DIMA Tables
 #'
 #' @description Given path to a DIMA and a designation for SpeciesState, create an R object (list) containing DIMA tables with PrimaryKeys appended
+#' @param path_dima Full file path and name of the DIMA to be processed
+#' @param speciesstate Code to be attached to the data connecting the species list with input plots. Required for terradactyl functions.
+#' @param path_out If specified, function saves an rdata object containing the function output, and formatted tblSpecies, to this folder. 
+#' @param remove_invalid_keys If TRUE, data which cannot be connected to a valid primary key is dropped. This is recommended to remove orphan records.
 
 #' @rdname dima_prep
 #' @export dima_prep
