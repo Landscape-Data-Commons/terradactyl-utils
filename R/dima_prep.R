@@ -26,6 +26,7 @@ dima_prep <- function(path_dima, speciesstate, path_out = NULL, remove_invalid_k
                   "SELECT * FROM tblQualHeader",
                   "SELECT * FROM tblQualDetail",
                   "SELECT * FROM tblSpecies",
+                  "SELECT * FROM tblSites",
                   "SELECT * FROM tblLines")
   
   names(l_query) <- c("tblPlots",
@@ -40,6 +41,7 @@ dima_prep <- function(path_dima, speciesstate, path_out = NULL, remove_invalid_k
                       "tblQualHeader",
                       "tblQualDetail",
                       "tblSpecies",
+                      "tblSites",
                       "tblLines")
   
   # Get data out of the specified DIMA
@@ -89,6 +91,10 @@ dima_prep <- function(path_dima, speciesstate, path_out = NULL, remove_invalid_k
                                     join_gap %>% dplyr::select("PlotKey", "plotVisitKey"), 
                                     join_sr %>% dplyr::select("PlotKey", "plotVisitKey"), 
                                     join_ss %>% dplyr::select("PlotKey", "plotVisitKey"))) %>% 
+    dplyr::left_join(., data_dima$tblPlots %>% dplyr::select("PlotKey", "SiteKey") %>% dplyr::mutate_all(as.character),
+                     by = "PlotKey") %>%
+    dplyr::left_join(., data_dima$tblSites %>% dplyr::select(SiteKey, ProjectName = SiteID) %>% dplyr::mutate_all(as.character),
+                     by = "SiteKey") %>%
     unique()
   
   if(all(is.na(join_plots$plotVisitKey))){
@@ -114,7 +120,7 @@ dima_prep <- function(path_dima, speciesstate, path_out = NULL, remove_invalid_k
       data_dima$tblPlots %>% 
         dplyr::mutate(SiteKey = as.character(SiteKey),
                       PlotKey = as.character(PlotKey)),
-      by = "PlotKey") %>%
+      by = c("PlotKey", "SiteKey")) %>%
     dplyr::rename(PrimaryKey = plotVisitKey) %>%
     dplyr::arrange(PlotKey) %>% 
     dplyr::mutate(DBKey = dbkey,
@@ -214,7 +220,9 @@ dima_prep <- function(path_dima, speciesstate, path_out = NULL, remove_invalid_k
       
       invalid_rows <- 
         grepl(".*nvalid Key.*", data_out[[n]]$PrimaryKey) |
-        grepl("^999999.*", data_out[[n]]$PrimaryKey)
+        grepl("^999999.*", data_out[[n]]$PrimaryKey) |
+        grepl("^888888.*", data_out[[n]]$PrimaryKey) |
+        grepl("1000000000", data_out[[n]]$PrimaryKey)
       
       if(any(invalid_rows)){
         print(paste(sum(invalid_rows), "records could not be connected to a valid PlotKey in table", names(data_out)[n], "and were removed"))
@@ -228,6 +236,11 @@ dima_prep <- function(path_dima, speciesstate, path_out = NULL, remove_invalid_k
   
   # attach tblSpecies
   data_out$tblSpecies <- data_dima$tblSpecies
+  
+  # attach tblSites
+  # Sites
+  data_out$tblSites <- data_dima$tblSites %>%
+    dplyr::mutate(ProjectName = SiteID)
   
   ### name the output
   # The last object in the list is tblLines, which is not needed

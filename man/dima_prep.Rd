@@ -6,6 +6,15 @@
 \usage{
 dima_prep(path_dima, speciesstate, path_out = NULL, remove_invalid_keys = T)
 }
+\arguments{
+\item{path_dima}{Full file path and name of the DIMA to be processed}
+
+\item{speciesstate}{Code to be attached to the data connecting the species list with input plots. Required for terradactyl functions.}
+
+\item{path_out}{If specified, function saves an rdata object containing the function output, and formatted tblSpecies, to this folder.}
+
+\item{remove_invalid_keys}{If TRUE, data which cannot be connected to a valid primary key is dropped. This is recommended to remove orphan records.}
+}
 \description{
 Given path to a DIMA and a designation for SpeciesState, create an R object (list) containing DIMA tables with PrimaryKeys appended
 }

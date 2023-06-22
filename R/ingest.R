@@ -245,12 +245,12 @@ ingest_DIMA <- function(projectkey,
   }
   
   all_indicators <- header
-  if(doLPI) all_indicators <- all_indicators %>% dplyr::left_join(l)
-  if(doGap) all_indicators <- all_indicators %>% dplyr::left_join(g) 
-  if(doHt) all_indicators <- all_indicators %>% dplyr::left_join(h)  
-  if(doSR) all_indicators <- all_indicators %>% dplyr::left_join(sr)
-  if(doSS) all_indicators <- all_indicators %>% dplyr::left_join(ss)
-  if(doRH) all_indicators <- all_indicators %>% dplyr::left_join(rh)
+  if(doLPI) all_indicators <- all_indicators %>% dplyr::left_join(., l)
+  if(doGap) all_indicators <- all_indicators %>% dplyr::left_join(., g) 
+  if(doHt) all_indicators <- all_indicators %>% dplyr::left_join(., h)  
+  if(doSR) all_indicators <- all_indicators %>% dplyr::left_join(., sr)
+  if(doSS) all_indicators <- all_indicators %>% dplyr::left_join(., ss)
+  if(doRH) all_indicators <- all_indicators %>% dplyr::left_join(., rh)
   
   all_indicators_dropcols <- all_indicators %>% 
     dplyr::select(-"DBKey", -"DateLoadedInDb")
