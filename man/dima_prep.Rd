@@ -2,9 +2,12 @@
 % Please edit documentation in R/dima_prep.R
 \name{dima_prep}
 \alias{dima_prep}
+\alias{create_species_list}
 \title{Attach PrimaryKeys to DIMA Tables}
 \usage{
 dima_prep(path_dima, speciesstate, path_out = NULL, remove_invalid_keys = T)
+
+create_species_list(path_dima, path_out, speciesstate)
 }
 \arguments{
 \item{path_dima}{Full file path and name of the DIMA to be processed}
@@ -17,4 +20,6 @@ dima_prep(path_dima, speciesstate, path_out = NULL, remove_invalid_keys = T)
 }
 \description{
 Given path to a DIMA and a designation for SpeciesState, create an R object (list) containing DIMA tables with PrimaryKeys appended
+
+Given path to a DIMA and a designation for SpeciesState, create a species table ready for use by terradactyl
 }
