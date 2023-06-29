@@ -53,7 +53,7 @@ ingest_DIMA <- function(projectkey,
     
     tall_gap <- gather_gap(source = "AIM", tblGapHeader = tblGapHeader, tblGapDetail = tblGapDetail) %>% dplyr::filter(PrimaryKey %in% pkeys)
     
-    dropcols_gap <- tall_gap %>% dplyr::select(-"DBKey")
+    dropcols_gap <- tall_gap 
     tall_gap <- tall_gap[which(!duplicated(dropcols_gap)),] %>%
       dplyr::filter(PrimaryKey %in% pkeys)
     
@@ -72,7 +72,7 @@ ingest_DIMA <- function(projectkey,
     
     tall_lpi <- gather_lpi(source = "AIM", tblLPIDetail = tblLPIDetail, tblLPIHeader = tblLPIHeader)
     
-    dropcols_lpi <- tall_lpi %>% dplyr::select(-"DBKey")
+    dropcols_lpi <- tall_lpi  %>% dplyr::select_if(!(names(.) %in% c("DateLoadedInDB", "DBKey", "rid", "DateModified", "SpeciesList")))
     tall_lpi <- tall_lpi[which(!duplicated(dropcols_lpi)),] %>%
       dplyr::filter(PrimaryKey %in% pkeys)
     
@@ -91,7 +91,7 @@ ingest_DIMA <- function(projectkey,
       write.csv(tblLPIDetail, file.path(path_dimatables, "tblLPIDetail.csv"), row.names = F)
     }
     tall_height <- gather_height(source = "AIM", tblLPIDetail = tblLPIDetail, tblLPIHeader = tblLPIHeader)
-    dropcols_height <- tall_height %>% dplyr::select(-"DBKey")
+    dropcols_height <- tall_height  %>% dplyr::select_if(!(names(.) %in% c("DateLoadedInDB", "DBKey", "rid", "DateModified", "SpeciesList")))
     tall_height <- tall_height[which(!duplicated(dropcols_height)),] %>%
       dplyr::filter(PrimaryKey %in% pkeys)
     
@@ -108,7 +108,7 @@ ingest_DIMA <- function(projectkey,
     
     tall_speciesinventory <- gather_species_inventory(source = "AIM", tblSpecRichDetail = tblSpecRichDetail, tblSpecRichHeader = tblSpecRichHeader)
     
-    dropcols_speciesinventory <- tall_speciesinventory %>% dplyr::select(-"DBKey")
+    dropcols_speciesinventory <- tall_speciesinventory  %>% dplyr::select_if(!(names(.) %in% c("DateLoadedInDB", "DBKey", "rid", "DateModified", "SpeciesList")))
     tall_speciesinventory <- tall_speciesinventory[which(!duplicated(dropcols_speciesinventory)),] %>%
       dplyr::filter(PrimaryKey %in% pkeys)
     
@@ -128,7 +128,7 @@ ingest_DIMA <- function(projectkey,
     
     tall_soilstability <- gather_soil_stability(source = "AIM", tblSoilStabHeader = tblSoilStabHeader, tblSoilStabDetail = tblSoilStabDetail)
     
-    dropcols_soilstability <- tall_soilstability %>% dplyr::select(-"DBKey")
+    dropcols_soilstability <- tall_soilstability  %>% dplyr::select_if(!(names(.) %in% c("DateLoadedInDB", "DBKey", "rid", "DateModified", "SpeciesList")))
     tall_soilstability <- tall_soilstability[which(!duplicated(dropcols_soilstability)),] %>%
       dplyr::filter(PrimaryKey %in% pkeys)
     
@@ -143,7 +143,7 @@ ingest_DIMA <- function(projectkey,
     tblHorizontalFlux <- fetch_postgres("tblHorizontalFlux", schema = "public", projectkey = projectkey, user = user, password = password)
     # no gather needed here
     
-    dropcols_hf <- tblHorizontalFlux %>% dplyr::select(-"DBKey")
+    dropcols_hf <- tblHorizontalFlux  %>% dplyr::select_if(!(names(.) %in% c("DateLoadedInDB", "DBKey", "rid", "DateModified", "SpeciesList")))
     tblHorizontalFlux <- tblHorizontalFlux[which(!duplicated(dropcols_hf)),]
     
     tblHorizontalFlux <- tblHorizontalFlux %>% 
@@ -467,4 +467,6 @@ new_data_only <- function(projectkey) {
   
   return(allfiles_pkeysdropped)
 }
+
+
 

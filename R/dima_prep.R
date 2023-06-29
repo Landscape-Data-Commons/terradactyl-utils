@@ -222,7 +222,7 @@ dima_prep <- function(path_dima, speciesstate, path_out = NULL, remove_invalid_k
         grepl(".*nvalid Key.*", data_out[[n]]$PrimaryKey) |
         grepl("^999999.*", data_out[[n]]$PrimaryKey) |
         grepl("^888888.*", data_out[[n]]$PrimaryKey) |
-        grepl("1000000000", data_out[[n]]$PrimaryKey)
+        grepl("^100000.*", data_out[[n]]$PrimaryKey)
       
       if(any(invalid_rows)){
         print(paste(sum(invalid_rows), "records could not be connected to a valid PlotKey in table", names(data_out)[n], "and were removed"))
@@ -284,4 +284,51 @@ dima_prep <- function(path_dima, speciesstate, path_out = NULL, remove_invalid_k
   }
   
   return(data_out)
+}
+
+#' @description Given path to a DIMA and a designation for SpeciesState, create a species table ready for use by terradactyl
+#' @param path_dima Full file path and name of the DIMA to be processed
+#' @param speciesstate Code to be attached to the data connecting the species list with input plots. Required for terradactyl functions.
+#' @param path_out If specified, function saves an rdata object containing the function output, and formatted tblSpecies, to this folder. 
+
+#' @rdname dima_prep
+#' @export create_species_list
+create_species_list <- function(path_dima, path_out, speciesstate){
+  query <- list("SELECT * FROM tblSpecies")
+  names(query) <- "tblSpecies"
+  tblSpecies <- extract_table(path_dima, query)
+  tblSpecies <- tblSpecies$tblSpecies
+  
+  tblSpecies$SpeciesState <- speciesstate
+  
+  ### attach missing data to tblSpecies
+  if(!("Noxious" %in% colnames(tblSpecies))) {
+    print("Adding NA Noxious classifications. Edit the output species list to add this data")
+    tblSpecies$Noxious <- ""
+  }
+  if(!("SG_Group" %in% colnames(tblSpecies))) {
+    print("Adding NA SG_Group classifications. Edit the output species list to add this data")
+    tblSpecies$SG_Group <- ""
+  }
+  
+  ### change GrowthHabitCode to GrowthHabit and GrowthHabitSub
+  tblSpecies$GrowthHabitSub <- dplyr::case_when(
+    tblSpecies$GrowthHabitCode == 1 ~ "Tree",
+    tblSpecies$GrowthHabitCode == 2 ~ "Shrub",
+    tblSpecies$GrowthHabitCode == 3 ~ "SubShrub",
+    tblSpecies$GrowthHabitCode == 4 ~ "Succulent",
+    tblSpecies$GrowthHabitCode == 5 ~ "Forb",
+    tblSpecies$GrowthHabitCode == 6 ~ "Graminoid",
+    tblSpecies$GrowthHabitCode == 7 ~ "Sedge"
+  )  
+  tblSpecies$GrowthHabit <- dplyr::case_when(
+    tblSpecies$GrowthHabitCode %in% 1:4 ~ "Woody",
+    tblSpecies$GrowthHabitCode %in% 5:7 ~ "NonWoody"
+  )
+  
+  tblSpecies <- tblSpecies %>% dplyr::select_if(!names(.) %in% c("SortSeq"))
+  
+  write.csv(tblSpecies, file.path(path_out, paste0("tblSpecies.csv")), row.names = F)
+  
+  return(tblSpecies)
 }
