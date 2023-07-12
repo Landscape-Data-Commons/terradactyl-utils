@@ -259,6 +259,12 @@ dima_prep <- function(path_dima, speciesstate, path_out = NULL, remove_invalid_k
     print("Adding NA SG_Group classifications. Edit the output species list to add this data")
     data_out$tblSpecies$SG_Group <- ""
   }
+  if(!("Notes" %in% colnames(data_out$tblSpecies))) {
+    print("Adding NA Notes column. Edit the output species list to add this data")
+    data_out$tblSpecies$Notes <- ""
+  }
+  
+  
   
   ### change GrowthHabitCode to GrowthHabit and GrowthHabitSub
   data_out$tblSpecies$GrowthHabitSub <- dplyr::case_when(
@@ -294,10 +300,18 @@ dima_prep <- function(path_dima, speciesstate, path_out = NULL, remove_invalid_k
 #' @rdname dima_prep
 #' @export create_species_list
 create_species_list <- function(path_dima, path_out, speciesstate){
+  
+  dbkey <- strsplit(path_dima, "/")[[1]][length(strsplit(path_dima, "/")[[1]])] %>% tools::file_path_sans_ext()
+  
   query <- list("SELECT * FROM tblSpecies")
   names(query) <- "tblSpecies"
   tblSpecies <- extract_table(path_dima, query)
   tblSpecies <- tblSpecies$tblSpecies
+  
+  if(nrow(tblSpecies) == 0){
+    warning("No rows in tblSpecies")
+    return(NULL)
+  }
   
   tblSpecies$SpeciesState <- speciesstate
   
@@ -309,6 +323,10 @@ create_species_list <- function(path_dima, path_out, speciesstate){
   if(!("SG_Group" %in% colnames(tblSpecies))) {
     print("Adding NA SG_Group classifications. Edit the output species list to add this data")
     tblSpecies$SG_Group <- ""
+  }
+  if(!("Notes" %in% colnames(tblSpecies))) {
+    print("Adding NA Notes column. Edit the output species list to add this data")
+    tblSpecies$Notes <- ""
   }
   
   ### change GrowthHabitCode to GrowthHabit and GrowthHabitSub
@@ -328,7 +346,35 @@ create_species_list <- function(path_dima, path_out, speciesstate){
   
   tblSpecies <- tblSpecies %>% dplyr::select_if(!names(.) %in% c("SortSeq"))
   
-  write.csv(tblSpecies, file.path(path_out, paste0("tblSpecies.csv")), row.names = F)
+  write.csv(tblSpecies, file.path(path_out, paste0("tblSpecies_", dbkey, ".csv")), row.names = F)
   
   return(tblSpecies)
+}
+
+#' @description Given path to a DIMA and a designation for SpeciesState, merge species tables created by create_species_list()
+#' @param path_dima Full file path and name of the DIMA to be processed
+#' @param speciesstate Code to be attached to the data connecting the species list with input plots. Required for terradactyl functions.
+#' @param path_out If specified, function saves an rdata object containing the function output, and formatted tblSpecies, to this folder. 
+
+#' @rdname dima_prep
+#' @export merge_species_list
+merge_species_list <- function(path_dimas, path_out, speciesstate){
+  l_dimapaths <- list.files(path = path_dimas, pattern = "*\\.mdb$", full.names = T)
+  
+  l_splists <- sapply(l_dimapaths, function(p){
+    print(paste0("Accessing ", p))
+    create_species_list(path_dima = p, path_out = path_dimas, speciesstate = speciesstate)
+  })
+  
+  splist <- l_splists %>% dplyr::bind_rows() %>% unique()
+  
+  dupsp <- splist[duplicated(splist$SpeciesCode) | duplicated(splist$SpeciesCode, fromLast = T),]
+  
+  if(nrow(dupsp) > 0){
+    warning("Duplicate species codes found. Edit output file to remove")
+    print(dupsp)
+  }
+  
+  write.csv(splist, path_out, row.names = F)
+  return(splist)
 }

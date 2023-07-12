@@ -134,10 +134,7 @@ ingest_DIMA <- function(projectkey,
     
     saveRDS(tall_soilstability, file.path(path_tall, "soil_stability_tall.rdata"))
     write.csv(tall_soilstability, file.path(path_tall, "soil_stability_tall.csv"), row.names = F)
-  } else {
-    tblSoilStabHeader = NULL
   }
-  
   
   if(doHF){
     tblHorizontalFlux <- fetch_postgres("tblHorizontalFlux", schema = "public", projectkey = projectkey, user = user, password = password)
@@ -171,7 +168,7 @@ ingest_DIMA <- function(projectkey,
   saveRDS(header, file.path(path_tall, "header.rdata"))
   
   # attach date to horizontalflux
-  if(nrow(tblHorizontalFlux > 0)){
+  if(doHF){
     tblHorizontalFlux <- tblHorizontalFlux %>%
       dplyr::left_join(header %>% dplyr::select(PrimaryKey, DateVisited)) %>%
       dplyr::mutate(BoxID = as.character(BoxID),
@@ -253,7 +250,7 @@ ingest_DIMA <- function(projectkey,
   if(doRH) all_indicators <- all_indicators %>% dplyr::left_join(., rh)
   
   all_indicators_dropcols <- all_indicators %>% 
-    dplyr::select(-"DBKey", -"DateLoadedInDb")
+    dplyr::select_if(!names(.) %in% c("DBKey", "DateLoadedInDb", "rid", "SpeciesList"))
   all_indicators_unique <- all_indicators[which(!duplicated(all_indicators_dropcols)),]
   
   i <- terradactylUtils::add_indicator_columns(template = path_templatetd,
@@ -468,5 +465,12 @@ new_data_only <- function(projectkey) {
   return(allfiles_pkeysdropped)
 }
 
-
+#' @rdname ingest
+#' @export fetch_splist_from_tdat
+fetch_splist_from_tdat <- function(path_td, speciesstate){
+  splist <- suppressWarnings(
+    sf::st_read(path_td, "tblStateSpecies",
+                query = paste0("SELECT * FROM tblStateSpecies WHERE SpeciesState = '", speciesstate, "'")))
+  return(splist)
+}
 
