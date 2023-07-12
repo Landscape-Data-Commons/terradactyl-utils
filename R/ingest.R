@@ -55,7 +55,7 @@ ingest_DIMA <- function(projectkey,
     
     dropcols_gap <- tall_gap 
     tall_gap <- tall_gap[which(!duplicated(dropcols_gap)),] %>%
-      dplyr::filter(PrimaryKey %in% pkeys)
+      dplyr::filter(PrimaryKey %in% pkeys) %>% unique()
     
     saveRDS(tall_gap, file.path(path_tall, "gap_tall.rdata"))
     write.csv(tall_gap, file.path(path_tall, "gap_tall.csv"), row.names = F)
@@ -74,7 +74,7 @@ ingest_DIMA <- function(projectkey,
     
     dropcols_lpi <- tall_lpi  %>% dplyr::select_if(!(names(.) %in% c("DateLoadedInDB", "DBKey", "rid", "DateModified", "SpeciesList")))
     tall_lpi <- tall_lpi[which(!duplicated(dropcols_lpi)),] %>%
-      dplyr::filter(PrimaryKey %in% pkeys)
+      dplyr::filter(PrimaryKey %in% pkeys) %>% unique()
     
     saveRDS(tall_lpi, file.path(path_tall, "lpi_tall.rdata"))
     write.csv(tall_lpi, file.path(path_tall, "lpi_tall.csv"), row.names = F)
@@ -93,7 +93,7 @@ ingest_DIMA <- function(projectkey,
     tall_height <- gather_height(source = "AIM", tblLPIDetail = tblLPIDetail, tblLPIHeader = tblLPIHeader)
     dropcols_height <- tall_height  %>% dplyr::select_if(!(names(.) %in% c("DateLoadedInDB", "DBKey", "rid", "DateModified", "SpeciesList")))
     tall_height <- tall_height[which(!duplicated(dropcols_height)),] %>%
-      dplyr::filter(PrimaryKey %in% pkeys)
+      dplyr::filter(PrimaryKey %in% pkeys) %>% unique()
     
     saveRDS(tall_height, file.path(path_tall, "height_tall.rdata"))
     write.csv(tall_height, file.path(path_tall, "height_tall.csv"), row.names = F)
@@ -110,7 +110,7 @@ ingest_DIMA <- function(projectkey,
     
     dropcols_speciesinventory <- tall_speciesinventory  %>% dplyr::select_if(!(names(.) %in% c("DateLoadedInDB", "DBKey", "rid", "DateModified", "SpeciesList")))
     tall_speciesinventory <- tall_speciesinventory[which(!duplicated(dropcols_speciesinventory)),] %>%
-      dplyr::filter(PrimaryKey %in% pkeys)
+      dplyr::filter(PrimaryKey %in% pkeys) %>% unique()
     
     saveRDS(tall_speciesinventory, file.path(path_tall, "species_inventory_tall.rdata"))
     write.csv(tall_speciesinventory, file.path(path_tall, "species_inventory_tall.csv"), row.names = F)
@@ -120,7 +120,6 @@ ingest_DIMA <- function(projectkey,
   }
   
   if(doSS){
-    # this section entirely untested
     tblSoilStabHeader <- fetch_postgres("tblSoilStabHeader", schema = "public", projectkey = projectkey, user = user, password = password)
     tblSoilStabDetail <- fetch_postgres("tblSoilStabDetail", schema = "public", projectkey = projectkey, user = user, password = password)
     write.csv(tblSoilStabHeader, file.path(path_dimatables, "tblSoilStabHeader.csv"), row.names = F)
@@ -130,7 +129,7 @@ ingest_DIMA <- function(projectkey,
     
     dropcols_soilstability <- tall_soilstability  %>% dplyr::select_if(!(names(.) %in% c("DateLoadedInDB", "DBKey", "rid", "DateModified", "SpeciesList")))
     tall_soilstability <- tall_soilstability[which(!duplicated(dropcols_soilstability)),] %>%
-      dplyr::filter(PrimaryKey %in% pkeys)
+      dplyr::filter(PrimaryKey %in% pkeys) %>% unique()
     
     saveRDS(tall_soilstability, file.path(path_tall, "soil_stability_tall.rdata"))
     write.csv(tall_soilstability, file.path(path_tall, "soil_stability_tall.csv"), row.names = F)
@@ -148,7 +147,7 @@ ingest_DIMA <- function(projectkey,
       dplyr::mutate(ProjectKey = projectkey,
                     DateEstablished = NA) %>%
       dplyr::select(-PlotKey, -Collector, -labTech, -rid) %>%
-      dplyr::filter(PrimaryKey %in% pkeys)
+      dplyr::filter(PrimaryKey %in% pkeys) %>% unique()
     
     # saveRDS(tblHorizontalFlux, file.path(path_tall, "dataHorizontalFlux.rdata"))
     # write.csv(tblHorizontalFlux, file.path(path_tall, "dataHorizontalFlux.csv"), row.names = F)
