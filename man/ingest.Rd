@@ -5,6 +5,7 @@
 \alias{translate_coremethods}
 \alias{ingest_indicators_gdb}
 \alias{new_data_only}
+\alias{fetch_splist_from_tdat}
 \title{Take data from public postgres server and prepare them for ingestion}
 \usage{
 ingest_DIMA(
@@ -34,6 +35,8 @@ translate_coremethods(
 ingest_indicators_gdb(path_terradat, path_out, path_schema, verbose = F)
 
 new_data_only(projectkey)
+
+fetch_splist_from_tdat(path_td, speciesstate)
 }
 \description{
 Take data from public postgres server and prepare them for ingestion
