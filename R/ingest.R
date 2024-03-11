@@ -4,6 +4,7 @@
 ingest_DIMA <- function(projectkey, 
                         path_specieslist, 
                         path_templatetd,
+                        path_schema = "C:/Users/jrbrehm/Documents/GitHub/workspace/Schema Translation/Translation.csv",
                         doLPI = T,
                         doGap = T,
                         doSR = T,
@@ -24,6 +25,8 @@ ingest_DIMA <- function(projectkey,
   if(!dir.exists(path_tall)) dir.create(path_tall)
   path_foringest <- file.path(path_parent, "For Ingest")
   if(!dir.exists(path_foringest)) dir.create(path_foringest)
+  
+
   
   # next sections are split out by method in order to let you pick and choose which to run. Each follows this pattern:
   ### get data from postgres server
@@ -52,7 +55,7 @@ ingest_DIMA <- function(projectkey,
     write.csv(tblGapHeader, file.path(path_dimatables, "tblGapHeader.csv"), row.names = F)
     write.csv(tblGapDetail, file.path(path_dimatables, "tblGapDetail.csv"), row.names = F)
     
-    tall_gap <- gather_gap(source = "AIM", tblGapHeader = tblGapHeader, tblGapDetail = tblGapDetail) %>% dplyr::filter(PrimaryKey %in% pkeys)
+    tall_gap <- gather_gap(source = "DIMA", tblGapHeader = tblGapHeader, tblGapDetail = tblGapDetail) %>% dplyr::filter(PrimaryKey %in% pkeys)
     
     dropcols_gap <- tall_gap  %>% dplyr::select_if(!(names(.) %in% c("DateLoadedInDB", "DBKey", "rid", "DateModified", "SpeciesList")))
     tall_gap <- tall_gap[which(!duplicated(dropcols_gap)),] %>%
@@ -73,7 +76,7 @@ ingest_DIMA <- function(projectkey,
     write.csv(tblLPIHeader, file.path(path_dimatables, "tblLPIHeader.csv"), row.names = F)
     write.csv(tblLPIDetail, file.path(path_dimatables, "tblLPIDetail.csv"), row.names = F)
     
-    tall_lpi <- gather_lpi(source = "AIM", tblLPIDetail = tblLPIDetail, tblLPIHeader = tblLPIHeader)
+    tall_lpi <- gather_lpi(source = "DIMA", tblLPIDetail = tblLPIDetail, tblLPIHeader = tblLPIHeader)
     
     dropcols_lpi <- tall_lpi  %>% dplyr::select_if(!(names(.) %in% c("DateLoadedInDB", "DBKey", "rid", "DateModified", "SpeciesList")))
     tall_lpi <- tall_lpi[which(!duplicated(dropcols_lpi)),] %>%
@@ -95,7 +98,7 @@ ingest_DIMA <- function(projectkey,
       write.csv(tblLPIHeader, file.path(path_dimatables, "tblLPIHeader.csv"), row.names = F)
       write.csv(tblLPIDetail, file.path(path_dimatables, "tblLPIDetail.csv"), row.names = F)
     }
-    tall_height <- gather_height(source = "AIM", tblLPIDetail = tblLPIDetail, tblLPIHeader = tblLPIHeader)
+    tall_height <- gather_height(source = "DIMA", tblLPIDetail = tblLPIDetail, tblLPIHeader = tblLPIHeader)
     dropcols_height <- tall_height  %>% dplyr::select_if(!(names(.) %in% c("DateLoadedInDB", "DBKey", "rid", "DateModified", "SpeciesList")))
     tall_height <- tall_height[which(!duplicated(dropcols_height)),] %>%
       dplyr::filter(PrimaryKey %in% pkeys) %>% unique()
@@ -113,7 +116,7 @@ ingest_DIMA <- function(projectkey,
     write.csv(tblSpecRichHeader, file.path(path_dimatables, "tblSpecRichHeader.csv"), row.names = F)
     write.csv(tblSpecRichDetail, file.path(path_dimatables, "tblSpecRichDetail.csv"), row.names = F)
     
-    tall_speciesinventory <- gather_species_inventory(source = "AIM", tblSpecRichDetail = tblSpecRichDetail, tblSpecRichHeader = tblSpecRichHeader)
+    tall_speciesinventory <- gather_species_inventory(source = "DIMA", tblSpecRichDetail = tblSpecRichDetail, tblSpecRichHeader = tblSpecRichHeader)
     
     dropcols_speciesinventory <- tall_speciesinventory  %>% dplyr::select_if(!(names(.) %in% c("DateLoadedInDB", "DBKey", "rid", "DateModified", "SpeciesList")))
     tall_speciesinventory <- tall_speciesinventory[which(!duplicated(dropcols_speciesinventory)),] %>%
@@ -134,7 +137,7 @@ ingest_DIMA <- function(projectkey,
     write.csv(tblSoilStabHeader, file.path(path_dimatables, "tblSoilStabHeader.csv"), row.names = F)
     write.csv(tblSoilStabDetail, file.path(path_dimatables, "tblSoilStabDetail.csv"), row.names = F)
     
-    tall_soilstability <- gather_soil_stability(source = "AIM", tblSoilStabHeader = tblSoilStabHeader, tblSoilStabDetail = tblSoilStabDetail)
+    tall_soilstability <- gather_soil_stability(source = "DIMA", tblSoilStabHeader = tblSoilStabHeader, tblSoilStabDetail = tblSoilStabDetail)
     
     dropcols_soilstability <- tall_soilstability  %>% dplyr::select_if(!(names(.) %in% c("DateLoadedInDB", "DBKey", "rid", "DateModified", "SpeciesList")))
     tall_soilstability <- tall_soilstability[which(!duplicated(dropcols_soilstability)),] %>%
@@ -168,7 +171,7 @@ ingest_DIMA <- function(projectkey,
   }
 
   message("Gathering header")
-  header <- gather_header(dsn = NULL, source = "AIM", tblPlots = tblPlots, date_tables = list(tblLPIHeader, tblGapHeader, 
+  header <- gather_header(dsn = NULL, source = "DIMA", tblPlots = tblPlots, date_tables = list(tblLPIHeader, tblGapHeader, 
                                                                                               tblSpecRichHeader, tblHorizontalFlux))
   
   dropcols_header <- header %>% dplyr::select(-"DBKey", -"DateLoadedInDb")
@@ -191,7 +194,7 @@ ingest_DIMA <- function(projectkey,
   # translate tall
   translate_coremethods(path_tall = path_tall,
                      path_out = path_foringest,
-                     path_schema = "C:/Users/jrbrehm/Documents/GitHub/Workspace/Schema Translation/Translation.xlsx",
+                     path_schema = path_schema,
                      projectkey = projectkey,
                      verbose = T)
   
@@ -199,7 +202,7 @@ ingest_DIMA <- function(projectkey,
     l <- lpi_calc(
       lpi_tall = file.path(path_tall, "lpi_tall.rdata"),
       header = header,
-      source = "AIM",
+      source = "DIMA",
       species_file = path_specieslist,
       dsn = path_templatetd
     )
@@ -220,7 +223,7 @@ ingest_DIMA <- function(projectkey,
     h <- height_calc(
       height_tall = file.path(path_tall, "height_tall.rdata"),
       header = header,
-      source = "AIM",
+      source = "DIMA",
       species_file = path_specieslist
     )
   } else {
@@ -232,7 +235,7 @@ ingest_DIMA <- function(projectkey,
       header = header,
       spp_inventory_tall = file.path(path_tall, "species_inventory_tall.rdata"),
       species_file = path_specieslist, 
-      source = "AIM"
+      source = "DIMA"
     )
   } else {
     sr <- NULL
@@ -263,12 +266,12 @@ ingest_DIMA <- function(projectkey,
     dplyr::select_if(!names(.) %in% c("DBKey", "DateLoadedInDb", "rid", "SpeciesList"))
   all_indicators_unique <- all_indicators[which(!duplicated(all_indicators_dropcols)),]
   
-  i <- terradactylUtils::add_indicator_columns(template = path_templatetd,
-                                               source = "AIM",
+  i <- add_indicator_columns(template = path_templatetd,
+                                               source = "DIMA",
                                                all_indicators = all_indicators_unique,
                                                prefixes_to_zero = c("AH", "FH", "NumSpp"))
   geoInd <- i %>% 
-    translate_schema(matrix = subset(readxl::read_xlsx("C:/Users/jrbrehm/Documents/GitHub/Workspace/Schema Translation/Translation.xlsx"), 
+    translate_schema(matrix = subset(read.csv(path_schema), 
                                      Table2 == "geoIndicators"), tocol = "Column2", 
                      fromcol = "Column1",
                      projectkey = projectkey,
@@ -307,11 +310,11 @@ ingest_DIMA <- function(projectkey,
       header = file.path(path_tall, "header.rdata"),
       species_file = path_specieslist,
       dead = F,
-      source = "AIM") %>% 
-      dplyr::left_join(header %>% dplyr::select(PrimaryKey, DateVisited, DBKey)) %>% 
+      source = "DIMA") %>% 
+      dplyr::left_join(header %>% dplyr::select(PrimaryKey, DateVisited)) %>% 
       dplyr::filter(!(is.na(AH_SpeciesCover) & is.na(AH_SpeciesCover_n) & 
                         is.na(Hgt_Species_Avg) & is.na(Hgt_Species_Avg_n))) %>%
-      translate_schema(matrix = subset(readxl::read_xlsx("C:/Users/jrbrehm/Documents/GitHub/workspace/Schema Translation/Translation.xlsx"), 
+      translate_schema(matrix = subset(read.csv(path_schema), 
                                        Table2 == "geoSpecies"), tocol = "Column2", fromcol = "Column1", projectkey = projectkey)
     
     write.csv(a, file.path(path_foringest, "geoSpecies.csv"), row.names = F)
@@ -326,7 +329,7 @@ ingest_DIMA <- function(projectkey,
 #' @export translate_coremethods
 translate_coremethods <- function(path_tall, path_out, path_schema, projectkey, verbose = F){
 
-  fullmatrix <- readxl::read_xlsx(path_schema)
+  fullmatrix <- read.csv(path_schema)
 
   if(file.exists(file.path(path_tall, "header.Rdata"))){
     print("Translating header data")
@@ -343,7 +346,7 @@ translate_coremethods <- function(path_tall, path_out, path_schema, projectkey, 
   if(file.exists(file.path(path_tall, "lpi_tall.Rdata"))){
     print("Translating LPI data")
     tall_lpi <- readRDS(file.path(path_tall, "lpi_tall.Rdata")) %>%
-      dplyr::left_join(dataHeader %>% dplyr::select(PrimaryKey, DateVisited, DBKey))
+      dplyr::left_join(dataHeader %>% dplyr::select(PrimaryKey, DateVisited))
      dataLPI <- tall_lpi %>%
       translate_schema(
         matrix = subset(fullmatrix, Table2 == "dataLPI"),
@@ -356,7 +359,7 @@ translate_coremethods <- function(path_tall, path_out, path_schema, projectkey, 
   if(file.exists(file.path(path_tall, "height_tall.Rdata"))){
     print("Translating height data")
     tall_ht  <- readRDS(file.path(path_tall, "height_tall.Rdata")) %>%
-      dplyr::left_join(dataHeader %>% dplyr::select(PrimaryKey, DateVisited, DBKey))
+      dplyr::left_join(dataHeader %>% dplyr::select(PrimaryKey, DateVisited))
     dataHeight <- tall_ht %>%
       translate_schema(
         matrix = subset(fullmatrix, Table2 == "dataHeight"),
@@ -369,7 +372,7 @@ translate_coremethods <- function(path_tall, path_out, path_schema, projectkey, 
   if(file.exists(file.path(path_tall, "species_inventory_tall.Rdata"))){
     print("Translating species inventory data")
     tall_sr  <- readRDS(file.path(path_tall, "species_inventory_tall.Rdata")) %>%
-      dplyr::left_join(dataHeader %>% dplyr::select(PrimaryKey, DateVisited, DBKey))
+      dplyr::left_join(dataHeader %>% dplyr::select(PrimaryKey, DateVisited))
     dataSpeciesInventory <- tall_sr %>%
       translate_schema(
         matrix = subset(fullmatrix, Table2 == "dataSpeciesInventory"),
@@ -383,7 +386,7 @@ translate_coremethods <- function(path_tall, path_out, path_schema, projectkey, 
   if(file.exists(file.path(path_tall, "soil_stability_tall.Rdata"))){
     print("Translating soil stability data")
     tall_ss  <- readRDS(file.path(path_tall, "soil_stability_tall.Rdata")) %>%
-      dplyr::left_join(dataHeader %>% dplyr::select(PrimaryKey, DateVisited, DBKey))
+      dplyr::left_join(dataHeader %>% dplyr::select(PrimaryKey, DateVisited))
     dataSoilStability <- tall_ss %>%
       translate_schema(
         matrix = subset(fullmatrix, Table2 == "dataSoilStability"),
@@ -396,7 +399,7 @@ translate_coremethods <- function(path_tall, path_out, path_schema, projectkey, 
   if(file.exists(file.path(path_tall, "gap_tall.Rdata"))){
     print("Translating canopy gap data")
     tall_gap <- readRDS(file.path(path_tall, "gap_tall.Rdata")) %>%
-      dplyr::left_join(dataHeader %>% dplyr::select(PrimaryKey, DateVisited, DBKey))
+      dplyr::left_join(dataHeader %>% dplyr::select(PrimaryKey, DateVisited))
     dataGap <- tall_gap %>%
       translate_schema(
         matrix = subset(fullmatrix, Table2 == "dataGap"),
@@ -405,19 +408,7 @@ translate_coremethods <- function(path_tall, path_out, path_schema, projectkey, 
   } else {
     print("Gap data not found")
   }
-  
-  if(file.exists(file.path(path_tall, "gap_tall.Rdata"))){
-    print("Translating canopy gap data")
-    tall_gap <- readRDS(file.path(path_tall, "gap_tall.Rdata")) %>%
-      dplyr::left_join(dataHeader %>% dplyr::select(PrimaryKey, DateVisited, DBKey))
-    dataGap <- tall_gap %>%
-      translate_schema(
-        matrix = subset(fullmatrix, Table2 == "dataGap"),
-        tocol = "Column2", fromcol = "Column1", verbose = verbose, projectkey = projectkey)
-    write.csv(dataGap, file.path(path_out, "dataGap.csv"), row.names = F)
-  } else {
-    print("Gap data not found")
-  }
+
 }
 
 #' @rdname ingest

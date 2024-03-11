@@ -18,20 +18,33 @@ translate_schema <- function(
   colnames(matrix)[colnames(matrix) == tocol] <- "ToColumn"
   
   ### process the incoming matrix by assigning actions to take at each row
-  matrix_processed <- 
+  matrix_processed1 <- 
     matrix %>% 
     dplyr::mutate(
       ToColumn <- stringr::str_trim(ToColumn, side = "both"),
     ) %>%
-    dplyr::filter(!is.na(ToColumn) | !is.na(FromColumn)) %>%
-    dplyr::select(FromColumn, ToColumn) %>% 
+    dplyr::filter(ToColumn != "" | FromColumn != "") %>%
+    dplyr::select(FromColumn, ToColumn)
+  
+  matrix_processed <- matrix_processed1 %>% 
     dplyr::mutate(
-      DropColumn = !is.na(FromColumn) & is.na(ToColumn),
-      AddColumn = !is.na(ToColumn) & is.na(FromColumn),
-      ChangeColumn = !is.na(ToColumn) & !is.na(FromColumn) & ToColumn != FromColumn,
-      NoAction = ToColumn == FromColumn & !AddColumn & !DropColumn,
+      DropColumn = (matrix_processed1$FromColumn != "" & matrix_processed1$ToColumn == ""),
+      AddColumn = matrix_processed1$ToColumn != "" & matrix_processed1$FromColumn == "",
+      ChangeColumn = matrix_processed1$ToColumn != "" & matrix_processed1$FromColum != "" & matrix_processed1$ToColumn != matrix_processed1$FromColumn,
+      NoAction = matrix_processed1$ToColumn == matrix_processed1$FromColumn & !AddColumn & !DropColumn,
       Checksum = AddColumn + DropColumn + ChangeColumn + NoAction,
     )
+  
+  ## old code from when translation matrix was a .xlsx (which records blanks as NA rather than "")
+    # dplyr::filter(!is.na(ToColumn) | !is.na(FromColumn)) %>%
+    # dplyr::select(FromColumn, ToColumn) %>% 
+    # dplyr::mutate(
+    #   DropColumn = !is.na(FromColumn) & is.na(ToColumn),
+    #   AddColumn = !is.na(ToColumn) & is.na(FromColumn),
+    #   ChangeColumn = !is.na(ToColumn) & !is.na(FromColumn) & ToColumn != FromColumn,
+    #   NoAction = ToColumn == FromColumn & !AddColumn & !DropColumn,
+    #   Checksum = AddColumn + DropColumn + ChangeColumn + NoAction,
+    # )
   
     ## check for errors (if errors are here the function is not working)  
   errors <-
@@ -69,7 +82,7 @@ translate_schema <- function(
   # }
   
   # select only the tables in the out schema
-  goodnames <- matrix_processed %>% dplyr::filter(!is.na(ToColumn)) %>% dplyr::pull(ToColumn)
+  goodnames <- matrix_processed %>% dplyr::filter(ToColumn != "") %>% dplyr::pull(ToColumn)
   
   if(verbose) {
     print(paste("Returning", length(goodnames), "columns"))
@@ -77,7 +90,7 @@ translate_schema <- function(
   }
   
   outdata <- outdata %>%
-    dplyr::select(goodnames)
+    dplyr::select(dplyr::all_of(goodnames))
   
   
   outdata$ProjectKey <- projectkey

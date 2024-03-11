@@ -18,7 +18,7 @@ add_indicator_columns <- function(template,
   if(length(template) == 1) {
     feature_class_field_names <- 
       sf::st_read(template, 
-                layer = dplyr::if_else(source %in% c("AIM", "TerrADat"), "TerrADat", source))
+                layer = dplyr::if_else(source %in% c("AIM", "TerrADat", "DIMA"), "TerrADat", source))
     feature_class_field_names <- 
       feature_class_field_names[,!colnames(feature_class_field_names) %in% 
                                   c("created_user", "created_date", 
