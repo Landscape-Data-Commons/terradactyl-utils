@@ -53,7 +53,7 @@ ingest_DIMA <- function(projectkey,
     
     tall_gap <- gather_gap(source = "AIM", tblGapHeader = tblGapHeader, tblGapDetail = tblGapDetail) %>% dplyr::filter(PrimaryKey %in% pkeys)
     
-    dropcols_gap <- tall_gap 
+    dropcols_gap <- tall_gap  %>% dplyr::select_if(!(names(.) %in% c("DateLoadedInDB", "DBKey", "rid", "DateModified", "SpeciesList")))
     tall_gap <- tall_gap[which(!duplicated(dropcols_gap)),] %>%
       dplyr::filter(PrimaryKey %in% pkeys) %>% unique()
     
@@ -301,7 +301,7 @@ ingest_DIMA <- function(projectkey,
       dplyr::filter(!(is.na(AH_SpeciesCover) & is.na(AH_SpeciesCover_n) & 
                         is.na(Hgt_Species_Avg) & is.na(Hgt_Species_Avg_n))) %>%
       translate_schema(matrix = subset(readxl::read_xlsx("C:/Users/jrbrehm/Documents/GitHub/workspace/Schema Translation/Translation.xlsx"), 
-                                       Table2 == "geoSpecies"), tocol = "Column2", fromcol = "Column1", projectkey = "NDOW")
+                                       Table2 == "geoSpecies"), tocol = "Column2", fromcol = "Column1", projectkey = projectkey)
     
     write.csv(a, file.path(path_foringest, "geoSpecies.csv"), row.names = F)
     
@@ -394,6 +394,19 @@ translate_coremethods <- function(path_tall, path_out, path_schema, projectkey, 
   } else {
     print("Gap data not found")
   }
+  
+  if(file.exists(file.path(path_tall, "gap_tall.Rdata"))){
+    print("Translating canopy gap data")
+    tall_gap <- readRDS(file.path(path_tall, "gap_tall.Rdata")) %>%
+      dplyr::left_join(dataHeader %>% dplyr::select(PrimaryKey, DateVisited, DBKey))
+    dataGap <- tall_gap %>%
+      translate_schema(
+        matrix = subset(fullmatrix, Table2 == "dataGap"),
+        tocol = "Column2", fromcol = "Column1", verbose = verbose, projectkey = projectkey)
+    write.csv(dataGap, file.path(path_out, "dataGap.csv"), row.names = F)
+  } else {
+    print("Gap data not found")
+  }
 }
 
 #' @rdname ingest
@@ -472,4 +485,3 @@ fetch_splist_from_tdat <- function(path_td, speciesstate){
                 query = paste0("SELECT * FROM tblStateSpecies WHERE SpeciesState = '", speciesstate, "'")))
   return(splist)
 }
-

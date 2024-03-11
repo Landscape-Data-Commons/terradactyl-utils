@@ -47,8 +47,42 @@ fetch_projectkeys <-
                           password=password)
     
     query1 <- paste0('SELECT "project_key" FROM "', schema, '"."Projects"')
-    ProjectKeys <- DBI::dbGetQuery(con, query1) %>% unique()
-
+    ProjectKeys <- DBI::dbGetQuery(con, query1) %>% unique() %>% dplyr::pull(project_key)
+    
     return(ProjectKeys)
   }
 
+#' @rdname fetch_postgres
+#' @export fetch_DBKeys
+fetch_DBKeys <-
+  function(schema,
+           host="jornada-ldc2.jrn.nmsu.edu",
+           port=5432,
+           dbname="postgres",
+           user,
+           password){
+    
+    con <- DBI::dbConnect(RPostgres::Postgres(), 
+                          dbname = dbname, 
+                          host=host, 
+                          port=port, 
+                          user=user, 
+                          password=password)
+    
+    query2 <- paste0('SELECT "DBKey" FROM "', schema, '"."tblLPIDetail"')
+    query3 <- paste0('SELECT "DBKey" FROM "', schema, '"."tblLPIHeader"')
+    query4 <- paste0('SELECT "DBKey" FROM "', schema, '"."tblGapDetail"')
+    query5 <- paste0('SELECT "DBKey" FROM "', schema, '"."tblGapHeader"')
+    query6 <- paste0('SELECT "DBKey" FROM "', schema, '"."tblLines"')
+    
+    DBKeys <- 
+      unique(c(
+        unlist(DBI::dbGetQuery(con, query2)),
+        unlist(DBI::dbGetQuery(con, query3)),
+        unlist(DBI::dbGetQuery(con, query4)),
+        unlist(DBI::dbGetQuery(con, query5)),
+        unlist(DBI::dbGetQuery(con, query6))
+        ))
+        
+        return(DBKeys)
+  }
