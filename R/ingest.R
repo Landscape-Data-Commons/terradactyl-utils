@@ -420,7 +420,7 @@ ingest_indicators_gdb  <- function(path_terradat, path_out, path_schema, verbose
   lmf <- sf::st_read(path_terradat, "LMF")
   lmfsp <- sf::st_read(path_terradat, "LMFSpeciesIndicators")
 
-  fullmatrix <- readxl::read_xlsx(path_schema)
+  fullmatrix <- read.csv(path_schema)
 
   tall_geoIndicators <- dplyr::bind_rows(td, lmf)
   geoIndicators <- tall_geoIndicators %>%
