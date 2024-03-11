@@ -46,6 +46,7 @@ ingest_DIMA <- function(projectkey,
   write.csv(tblPlots, file.path(path_dimatables, "tblPlots.csv"), row.names = F)
   
   if(doGap){
+    message("Gathering gap data")
     tblGapHeader <- fetch_postgres("tblGapHeader", schema = "public", projectkey = projectkey, user = user, password = password)
     tblGapDetail <- fetch_postgres("tblGapDetail", schema = "public", projectkey = projectkey, user = user, password = password)
     write.csv(tblGapHeader, file.path(path_dimatables, "tblGapHeader.csv"), row.names = F)
@@ -65,6 +66,8 @@ ingest_DIMA <- function(projectkey,
   }
   
   if(doLPI){
+    message("Gathering LPI data")
+    
     tblLPIHeader <- fetch_postgres("tblLPIHeader", schema = "public", projectkey = projectkey, user = user, password = password)
     tblLPIDetail <- fetch_postgres("tblLPIDetail", schema = "public", projectkey = projectkey, user = user, password = password)
     write.csv(tblLPIHeader, file.path(path_dimatables, "tblLPIHeader.csv"), row.names = F)
@@ -84,6 +87,8 @@ ingest_DIMA <- function(projectkey,
   }
   
   if(doHt){
+    message("Gathering height data")
+    
     if(!doLPI) {
       tblLPIHeader <- fetch_postgres("tblLPIHeader", schema = "public", projectkey = projectkey, user = user, password = password)
       tblLPIDetail <- fetch_postgres("tblLPIDetail", schema = "public", projectkey = projectkey, user = user, password = password)
@@ -101,6 +106,8 @@ ingest_DIMA <- function(projectkey,
   }
   
   if(doSR){
+    message("Gathering species inventory data")
+    
     tblSpecRichHeader <- fetch_postgres("tblSpecRichHeader", schema = "public", projectkey = projectkey, user = user, password = password)
     tblSpecRichDetail <- fetch_postgres("tblSpecRichDetail", schema = "public", projectkey = projectkey, user = user, password = password)
     write.csv(tblSpecRichHeader, file.path(path_dimatables, "tblSpecRichHeader.csv"), row.names = F)
@@ -120,6 +127,8 @@ ingest_DIMA <- function(projectkey,
   }
   
   if(doSS){
+    message("Gathering soil stability data")
+    
     tblSoilStabHeader <- fetch_postgres("tblSoilStabHeader", schema = "public", projectkey = projectkey, user = user, password = password)
     tblSoilStabDetail <- fetch_postgres("tblSoilStabDetail", schema = "public", projectkey = projectkey, user = user, password = password)
     write.csv(tblSoilStabHeader, file.path(path_dimatables, "tblSoilStabHeader.csv"), row.names = F)
@@ -136,6 +145,8 @@ ingest_DIMA <- function(projectkey,
   }
   
   if(doHF){
+    message("Gathering horizontal flux data")
+    
     tblHorizontalFlux <- fetch_postgres("tblHorizontalFlux", schema = "public", projectkey = projectkey, user = user, password = password)
     # no gather needed here
     
@@ -156,7 +167,7 @@ ingest_DIMA <- function(projectkey,
     tblHorizontalFlux = NULL
   }
 
-  
+  message("Gathering header")
   header <- gather_header(dsn = NULL, source = "AIM", tblPlots = tblPlots, date_tables = list(tblLPIHeader, tblGapHeader, 
                                                                                               tblSpecRichHeader, tblHorizontalFlux))
   
