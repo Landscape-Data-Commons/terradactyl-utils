@@ -2,10 +2,12 @@
 
 export("%>%")
 export(add_indicator_columns)
+export(batch_unique)
 export(create_species_list)
 export(dima_prep)
 export(ecosite_qc)
 export(extract_table)
+export(fetch_DBKeys)
 export(fetch_postgres)
 export(fetch_projectkeys)
 export(fetch_splist_from_tdat)

@@ -3,6 +3,7 @@
 \name{fetch_postgres}
 \alias{fetch_postgres}
 \alias{fetch_projectkeys}
+\alias{fetch_DBKeys}
 \title{Fetch data for a single table from the postgres database}
 \usage{
 fetch_postgres(
@@ -17,6 +18,15 @@ fetch_postgres(
 )
 
 fetch_projectkeys(
+  schema,
+  host = "jornada-ldc2.jrn.nmsu.edu",
+  port = 5432,
+  dbname = "postgres",
+  user,
+  password
+)
+
+fetch_DBKeys(
   schema,
   host = "jornada-ldc2.jrn.nmsu.edu",
   port = 5432,
