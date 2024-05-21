@@ -470,7 +470,7 @@ new_data_only <- function(projectkey, path_parent) {
     stop(paste0(path_parent, " does not exist"))
   }
   
-  if(!dir.exists(paste0(path_parent, "/", projectkey)){
+  if(!dir.exists(paste0(path_parent, "/", projectkey))){
     stop(paste0("Input data must be in a folder named ", paste0(path_parent, "/", projectkey)))
   }
     

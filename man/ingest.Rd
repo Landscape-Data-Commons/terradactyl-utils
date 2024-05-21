@@ -10,10 +10,10 @@
 \usage{
 ingest_DIMA(
   projectkey,
+  path_parent,
   path_specieslist,
   path_templatetd,
-  path_schema =
-    "C:/Users/jrbrehm/Documents/GitHub/workspace/Schema Translation/Translation.csv",
+  path_schema,
   doLPI = T,
   doGap = T,
   doSR = T,
@@ -36,7 +36,7 @@ translate_coremethods(
 
 ingest_indicators_gdb(path_terradat, path_out, path_schema, verbose = F)
 
-new_data_only(projectkey)
+new_data_only(projectkey, path_parent)
 
 fetch_splist_from_tdat(path_td, speciesstate)
 }
