@@ -2,9 +2,10 @@
 #' @rdname ingest
 #' @export ingest_DIMA
 ingest_DIMA <- function(projectkey, 
+                        path_parent,
                         path_specieslist, 
                         path_templatetd,
-                        path_schema = "C:/Users/jrbrehm/Documents/GitHub/workspace/Schema Translation/Translation.csv",
+                        path_schema,
                         doLPI = T,
                         doGap = T,
                         doSR = T,
@@ -17,7 +18,12 @@ ingest_DIMA <- function(projectkey,
                         password = NULL){
   
   # Set paths, based on the suffix. Creates file folders if needed
-  path_parent <- paste0("C:/Users/jrbrehm/Documents/Data/", projectkey)
+  if(!dir.exists(path_parent)) stop(paste0("Parent ", path_parent, " does not exist"))
+  path_parent <- paste0(path_parent, projectkey)
+  
+  if(!dir.exists(path_parent)) stop(paste0("Input data must be stored in parent, in a folder with name ", projectkey))
+  path_parent <- paste0(path_parent, projectkey)
+  
   if(!dir.exists(path_parent)) dir.create(path_parent)
   path_dimatables <- file.path(path_parent, "DIMATables")
   if(!dir.exists(path_dimatables)) dir.create(path_dimatables)
@@ -170,6 +176,21 @@ ingest_DIMA <- function(projectkey,
     tblHorizontalFlux = NULL
   }
 
+  if(doRH){
+    message("Gathering rangeland health data. THIS IS UNTESTED AS OF 5/14/24")
+    tblQualHeader <- fetch_postgres("tblQualHeader", schema = "public", projectkey = projectkey, user = user, password = password)
+    tblQualDetail <- fetch_postgres("tblQualDetail", schema = "public", projectkey = projectkey, user = user, password = password)
+  
+    tall_rangelandhealth <- gather_rangeland_health(source = "DIMA", tblQualHeader = tblQualHeader, tblQualDetail = tblQualDetail)
+   
+    dropcols_rangelandhealth <- tall_rangelandhealth  %>% dplyr::select_if(!(names(.) %in% c("DateLoadedInDB", "DBKey", "rid", "DateModified", "SpeciesList")))
+    tall_rangelandhealth <- tall_rangelandhealth[which(!duplicated(dropcols_rangelandhealth)),] %>%
+      dplyr::filter(PrimaryKey %in% pkeys) %>% unique()
+    
+    saveRDS(tall_rangelandhealth, file.path(path_tall, "rangeland_health_tall.rdata"))
+    write.csv(tall_rangelandhealth, file.path(path_tall, "rangeland_health_tall.csv"), row.names = F)
+  }
+  
   message("Gathering header")
   header <- gather_header(dsn = NULL, source = "DIMA", tblPlots = tblPlots, date_tables = list(tblLPIHeader, tblGapHeader, 
                                                                                               tblSpecRichHeader, tblHorizontalFlux))
@@ -249,7 +270,7 @@ ingest_DIMA <- function(projectkey,
   }
   
   if(doRH){
-    print("rangehealth summary not yet implemented")
+    rh <- tall_rangelandhealth # There is no indicator calculation for RH, just a gather; I structured it like this to preserve the symmetry.
   } else {
     rh <- NULL
   }
@@ -443,9 +464,21 @@ ingest_indicators_gdb  <- function(path_terradat, path_out, path_schema, verbose
 
 #' @rdname ingest
 #' @export new_data_only
-new_data_only <- function(projectkey) {
+new_data_only <- function(projectkey, path_parent) {
+
+  if(!dir.exists(path_parent)){
+    stop(paste0(path_parent, " does not exist"))
+  }
   
-  path_foringest <- paste0("C:/Users/jrbrehm/Documents/Data/", projectkey, "/For Ingest")
+  if(!dir.exists(paste0(path_parent, "/", projectkey)){
+    stop(paste0("Input data must be in a folder named ", paste0(path_parent, "/", projectkey)))
+  }
+    
+  path_foringest <- paste0(path_parent, "/", projectkey, "/For Ingest")
+  if(!dir.exists) {
+    message("Creating ", path_foringest)
+    dir.create(path_foringest)
+  }
   
   # geoIndicators <- read.csv(file.path(path_foringest, "geoIndicators.csv"))
   # dataHeader <- read.csv(file.path(path_foringest, "dataHeader.csv"))

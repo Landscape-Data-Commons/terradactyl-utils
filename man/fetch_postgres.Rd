@@ -12,8 +12,8 @@ fetch_postgres(
   user,
   password,
   schema = "dimadev",
-  host = "jornada-ldc2.jrn.nmsu.edu",
-  port = 5432,
+  host = "128.123.177.184",
+  port = 5435,
   dbname = "postgres"
 )
 

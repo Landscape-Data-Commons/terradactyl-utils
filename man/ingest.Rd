@@ -12,6 +12,8 @@ ingest_DIMA(
   projectkey,
   path_specieslist,
   path_templatetd,
+  path_schema =
+    "C:/Users/jrbrehm/Documents/GitHub/workspace/Schema Translation/Translation.csv",
   doLPI = T,
   doGap = T,
   doSR = T,
