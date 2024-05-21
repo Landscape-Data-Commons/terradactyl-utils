@@ -33,8 +33,8 @@ fetch_postgres <-
 #' @export fetch_projectkeys
 fetch_projectkeys <-
   function(schema,
-           host="jornada-ldc2.jrn.nmsu.edu",
-           port=5432,
+           host="128.123.177.184",
+           port=5435,
            dbname="postgres",
            user,
            password){
@@ -56,8 +56,8 @@ fetch_projectkeys <-
 #' @export fetch_DBKeys
 fetch_DBKeys <-
   function(schema,
-           host="jornada-ldc2.jrn.nmsu.edu",
-           port=5432,
+           host="128.123.177.184",
+           port=5435,
            dbname="postgres",
            user,
            password){
