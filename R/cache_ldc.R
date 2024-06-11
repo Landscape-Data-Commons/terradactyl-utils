@@ -13,8 +13,8 @@ cache_ldc <- function(projectkey, verbose, path_cache){
   saveRDS(dataHeader, paste0(outprefix, "_dataHeader_", Sys.Date(), ".rdata"))
   
   ### aero_summary
-  aero_summary <- fetch_ldc(keys = projectkey, key_type = "ProjectKey", data_type = "aerosummary", take = 8000, verbose = T)
-  saveRDS(aero_summary, paste0(outprefix, "_aero_summary_", Sys.Date(), ".rdata"))
+  # aero_summary <- fetch_ldc(keys = projectkey, key_type = "ProjectKey", data_type = "aerosummary", take = 8000, verbose = T)
+  # saveRDS(aero_summary, paste0(outprefix, "_aero_summary_", Sys.Date(), ".rdata"))
   
   ### aero_runs ### Not available through API? Might need a terradactyl update
   # aero_runs <- fetch_ldc(keys = projectkey, key_type = "ProjectKey", data_type = "aero_runs", take = 8000, verbose = T)
