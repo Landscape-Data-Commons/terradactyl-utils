@@ -33,8 +33,8 @@ fetch_postgres <-
 #' @export fetch_projectkeys
 fetch_projectkeys <-
   function(schema,
-           host="128.123.177.184",
-           port=5435,
+           host="128.123.177.184", # changed 5/2024
+           port=5435, # changed 5/2024
            dbname="postgres",
            user,
            password){
@@ -56,8 +56,8 @@ fetch_projectkeys <-
 #' @export fetch_DBKeys
 fetch_DBKeys <-
   function(schema,
-           host="128.123.177.184",
-           port=5435,
+           host="128.123.177.184", # changed 5/2024
+           port=5435, # changed 5/2024
            dbname="postgres",
            user,
            password){

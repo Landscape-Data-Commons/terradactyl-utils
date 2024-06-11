@@ -12,7 +12,7 @@ ingest_DIMA <- function(projectkey,
                         doSR = T,
                         doSS = T,
                         doHt = T,
-                        doRH = T, # not yet implemented
+                        doRH = T,
                         doHF = T,
                         doGSP = T,
                         user = NULL,
@@ -174,9 +174,8 @@ ingest_DIMA <- function(projectkey,
   }
 
   if(doRH){
-    message("Gathering rangeland health data. THIS IS UNTESTED AS OF 5/14/24")
-    tblQualHeader <- fetch_postgres("tblQualHeader", schema = pgschema, projectkey = projectkey, user = user, password = password)
-    tblQualDetail <- fetch_postgres("tblQualDetail", schema = pgschema, projectkey = projectkey, user = user, password = password)
+    tblQualHeader <- fetch_postgres("tblQualHeader", schema = "public", projectkey = projectkey, user = user, password = password)
+    tblQualDetail <- fetch_postgres("tblQualDetail", schema = "public", projectkey = projectkey, user = user, password = password)
   
     tall_rangelandhealth <- gather_rangeland_health(source = "DIMA", tblQualHeader = tblQualHeader, tblQualDetail = tblQualDetail)
    
