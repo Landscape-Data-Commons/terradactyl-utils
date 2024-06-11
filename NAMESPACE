@@ -3,6 +3,7 @@
 export("%>%")
 export(add_indicator_columns)
 export(better_unique)
+export(cache_ldc)
 export(check_coordinates)
 export(check_duplicates)
 export(compare_dataset_to_public)

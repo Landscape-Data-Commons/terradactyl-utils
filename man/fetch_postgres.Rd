@@ -19,8 +19,8 @@ fetch_postgres(
 
 fetch_projectkeys(
   schema,
-  host = "jornada-ldc2.jrn.nmsu.edu",
-  port = 5432,
+  host = "128.123.177.184",
+  port = 5435,
   dbname = "postgres",
   user,
   password
@@ -28,8 +28,8 @@ fetch_projectkeys(
 
 fetch_DBKeys(
   schema,
-  host = "jornada-ldc2.jrn.nmsu.edu",
-  port = 5432,
+  host = "128.123.177.184",
+  port = 5435,
   dbname = "postgres",
   user,
   password

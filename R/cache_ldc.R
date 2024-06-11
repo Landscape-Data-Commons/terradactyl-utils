@@ -3,6 +3,10 @@
 #' @export cache_ldc
 cache_ldc <- function(projectkey, verbose, path_cache){
   
+  if(!dir.exists(path_cache)){
+    stop("Invalid path_cache provided")
+  }
+
   outprefix <- paste(path_cache, projectkey, sep = "_")
   
   dataHeader <- fetch_ldc(keys = projectkey, key_type = "ProjectKey", data_type = "header", take = 8000, verbose = T)

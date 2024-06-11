@@ -14,6 +14,7 @@ ingest_DIMA(
   path_specieslist,
   path_templatetd,
   path_schema,
+  pgschema = "public",
   doLPI = T,
   doGap = T,
   doSR = T,
