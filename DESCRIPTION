@@ -1,7 +1,7 @@
 Package: terradactylUtils
 Type: Package
 Title: Minor Utility Functions for Creating and Maintaining TerrADat
-Version: 0.4
+Version: 0.5
 Author: person(given="Joe", family="Brehm", role=c("aut", "cre"), email="jrbrehm@nmsu.edu")
 Maintainer: Joe Brehm <jrbrehm@nmsu.edu>
 Description: Minor utility functions for use with terradat
