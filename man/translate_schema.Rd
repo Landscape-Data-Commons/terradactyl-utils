@@ -2,16 +2,17 @@
 % Please edit documentation in R/translate_schema.R
 \name{translate_schema}
 \alias{translate_schema}
+\alias{translate_coremethods}
 \title{Translate between schema given a table of associated columns}
 \usage{
-translate_schema(
-  data,
-  matrix,
-  fromcol,
-  tocol,
+translate_schema(data, datatype, schema, projectkey, dropcols = T, verbose = T)
+
+translate_coremethods(
+  path_tall,
+  path_out,
+  path_schema,
   projectkey,
-  dropcols = T,
-  verbose = T
+  verbose = F
 )
 }
 \description{

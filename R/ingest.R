@@ -29,7 +29,7 @@ ingest_DIMA <- function(projectkey,
   path_foringest <- file.path(path_parent, "For Ingest")
   if(!dir.exists(path_foringest)) dir.create(path_foringest)
   
-
+  schema <- read.csv(path_schema)
   
   # next sections are split out by method in order to let you pick and choose which to run. Each follows this pattern:
   ### get data from postgres server
@@ -288,19 +288,11 @@ ingest_DIMA <- function(projectkey,
                                                all_indicators = all_indicators_unique,
                                                prefixes_to_zero = c("AH", "FH", "NumSpp"))
   geoInd <- i %>% 
-    translate_schema(matrix = subset(read.csv(path_schema), 
-                                     Table2 == "geoIndicators"), tocol = "Column2", 
-                     fromcol = "Column1",
+    translate_schema(schema = schema,
                      projectkey = projectkey,
-                     dropcols = T)
-  
-  colnames(geoInd)
-  
-  # drop MWAC-only plots
-  # geoInd <- 
-  #   geoInd %>% dplyr::filter(!(is.na(AH_AnnGrassCover) & is.na(GapCover_25_plus) 
-  #                              & is.na(Hgt_Grass_Avg) & is.na(RH_InvasivePlants) 
-  #                              & is.na(SoilStability_All)))
+                     datatype = "geoIndicators",
+                     dropcols = TRUE,
+                     verbose = TRUE)
   
   write.csv(geoInd, file = file.path(path_foringest, "geoIndicators.csv"), row.names = F)
   
@@ -331,8 +323,11 @@ ingest_DIMA <- function(projectkey,
       dplyr::left_join(header %>% dplyr::select(PrimaryKey, DateVisited)) %>% 
       dplyr::filter(!(is.na(AH_SpeciesCover) & is.na(AH_SpeciesCover_n) & 
                         is.na(Hgt_Species_Avg) & is.na(Hgt_Species_Avg_n))) %>%
-      translate_schema(matrix = subset(read.csv(path_schema), 
-                                       Table2 == "geoSpecies"), tocol = "Column2", fromcol = "Column1", projectkey = projectkey)
+      translate_schema(schema = schema,
+                       projectkey = projectkey,
+                       datatype = "geoSpecies",
+                       dropcols = TRUE,
+                       verbose = TRUE)
     
     write.csv(a, file.path(path_foringest, "geoSpecies.csv"), row.names = F)
     
@@ -342,166 +337,84 @@ ingest_DIMA <- function(projectkey,
 }
 
 
-#' @rdname ingest
-#' @export translate_coremethods
-translate_coremethods <- function(path_tall, path_out, path_schema, projectkey, verbose = F){
 
-  fullmatrix <- read.csv(path_schema)
-
-  if(file.exists(file.path(path_tall, "header.Rdata"))){
-    print("Translating header data")
-    header   <- readRDS(file.path(path_tall, "header.Rdata"))
-    dataHeader <- header %>%
-      translate_schema(
-        matrix = subset(fullmatrix, Table2 == "dataHeader"),
-        tocol = "Column2", fromcol = "Column1", verbose = verbose, projectkey = projectkey)
-    write.csv(dataHeader, file.path(path_out, "dataHeader.csv"), row.names = F)
-  } else {
-    stop("Header data not found. Unable to translate data")
-  }
-
-  if(file.exists(file.path(path_tall, "lpi_tall.Rdata"))){
-    print("Translating LPI data")
-    tall_lpi <- readRDS(file.path(path_tall, "lpi_tall.Rdata")) %>%
-      dplyr::left_join(dataHeader %>% dplyr::select(PrimaryKey, DateVisited))
-     dataLPI <- tall_lpi %>%
-      translate_schema(
-        matrix = subset(fullmatrix, Table2 == "dataLPI"),
-        tocol = "Column2", fromcol = "Column1", verbose = verbose, projectkey = projectkey)
-    write.csv(dataLPI, file.path(path_out, "dataLPI.csv"), row.names = F)
-  } else {
-    print("LPI data not found")
-  }
-
-  if(file.exists(file.path(path_tall, "height_tall.Rdata"))){
-    print("Translating height data")
-    tall_ht  <- readRDS(file.path(path_tall, "height_tall.Rdata")) %>%
-      dplyr::left_join(dataHeader %>% dplyr::select(PrimaryKey, DateVisited))
-    dataHeight <- tall_ht %>%
-      translate_schema(
-        matrix = subset(fullmatrix, Table2 == "dataHeight"),
-        tocol = "Column2", fromcol = "Column1", verbose = verbose, projectkey = projectkey)
-    write.csv(dataHeight, file.path(path_out, "dataHeight.csv"), row.names = F)
-  } else {
-    print("Height data not found")
-  }
-
-  if(file.exists(file.path(path_tall, "species_inventory_tall.Rdata"))){
-    print("Translating species inventory data")
-    tall_sr  <- readRDS(file.path(path_tall, "species_inventory_tall.Rdata")) %>%
-      dplyr::left_join(dataHeader %>% dplyr::select(PrimaryKey, DateVisited))
-    dataSpeciesInventory <- tall_sr %>%
-      translate_schema(
-        matrix = subset(fullmatrix, Table2 == "dataSpeciesInventory"),
-        tocol = "Column2", fromcol = "Column1", verbose = verbose, projectkey = projectkey)
-    write.csv(dataSpeciesInventory, file.path(path_out, "dataSpeciesInventory.csv"), row.names = F)
-  } else {
-    print("Species inventory data not found")
-  }
-
-
-  if(file.exists(file.path(path_tall, "soil_stability_tall.Rdata"))){
-    print("Translating soil stability data")
-    tall_ss  <- readRDS(file.path(path_tall, "soil_stability_tall.Rdata")) %>%
-      dplyr::left_join(dataHeader %>% dplyr::select(PrimaryKey, DateVisited))
-    dataSoilStability <- tall_ss %>%
-      translate_schema(
-        matrix = subset(fullmatrix, Table2 == "dataSoilStability"),
-        tocol = "Column2", fromcol = "Column1", verbose = verbose, projectkey = projectkey)
-    write.csv(dataSoilStability, file.path(path_out, "dataSoilStability.csv"), row.names = F)
-  } else {
-    print("Soil stability data not found")
-  }
-
-  if(file.exists(file.path(path_tall, "gap_tall.Rdata"))){
-    print("Translating canopy gap data")
-    tall_gap <- readRDS(file.path(path_tall, "gap_tall.Rdata")) %>%
-      dplyr::left_join(dataHeader %>% dplyr::select(PrimaryKey, DateVisited))
-    dataGap <- tall_gap %>%
-      translate_schema(
-        matrix = subset(fullmatrix, Table2 == "dataGap"),
-        tocol = "Column2", fromcol = "Column1", verbose = verbose, projectkey = projectkey)
-    write.csv(dataGap, file.path(path_out, "dataGap.csv"), row.names = F)
-  } else {
-    print("Gap data not found")
-  }
-
-}
-
-#' @rdname ingest
-#' @export ingest_indicators_gdb
-ingest_indicators_gdb  <- function(path_terradat, path_out, path_schema, verbose = F){
-
-  td <- sf::st_read(path_terradat, "TerrADat")
-  tdsp <- sf::st_read(path_terradat, "TerrADatSpeciesIndicators")
-  lmf <- sf::st_read(path_terradat, "LMF")
-  lmfsp <- sf::st_read(path_terradat, "LMFSpeciesIndicators")
-
-  fullmatrix <- read.csv(path_schema)
-
-  tall_geoIndicators <- dplyr::bind_rows(td, lmf)
-  geoIndicators <- tall_geoIndicators %>%
-    translate_schema(
-      matrix = subset(fullmatrix, Table2 == "geoIndicators"),
-      tocol = "Column2", fromcol = "Column1", verbose = verbose)
-
-  tall_geoSpecies <- dplyr::bind_rows(tdsp, lmfsp)
-  geoSpecies <- tall_geoSpecies %>%
-    translate_schema(
-      matrix = subset(fullmatrix, Table2 == "geoSpecies"),
-      tocol = "Column2", fromcol = "Column1", verbose = verbose)
-
-  write.csv(geoIndicators, file.path(path_out, "geoIndicators.csv"), row.names = F)
-  write.csv(geoSpecies, file.path(path_out, "geoSpecies.csv"), row.names = F)
-
-  return(list(geoIndicators, geoSpecies))
-
-}
 
 #' @rdname ingest
 #' @export new_data_only
-new_data_only <- function(projectkey, path_parent) {
+new_data_only <- function(projectkey, path_parent, path_cache) {
 
   if(!dir.exists(path_parent)){
     stop(paste0(path_parent, " does not exist"))
   }
     
-  path_foringest <- paste0(path_parent, "/", projectkey, "/For Ingest")
-  if(!dir.exists) {
+  path_foringest <- file.path(path_parent, "For Ingest")
+  if(!dir.exists(path_foringest)) {
     message("Creating ", path_foringest)
     dir.create(path_foringest)
   }
   
-  # geoIndicators <- read.csv(file.path(path_foringest, "geoIndicators.csv"))
-  # dataHeader <- read.csv(file.path(path_foringest, "dataHeader.csv"))
-  paths_allfiles <- list.files(
+  paths_indata <- list.files(
     path = path_foringest,
     pattern = ".csv",
     recursive = F,
   )
   
-  geoInd_existing <- trex::fetch_ldc(keys = projectkey, key_type = "ProjectKey", data_type = "indicators")
+  paths_cache <-  list.files(
+    path = path_cache,
+    pattern = ".rdata",
+    recursive = F
+  )
   
-  allfiles <- sapply(paths_allfiles, function(p){
+  cachedate <- 
+    sapply(paths_cache, function(p){
+      nchunks <- length(strsplit(p, "_")[[1]])
+      cachedate <- strsplit(p, "_")[[1]][nchunks] %>% gsub(pattern = "\\.rdata", replace = "")
+    }) %>%
+    as.Date() %>%
+    max()
+  
+  message(paste0("Loading cache dated ", cachedate))
+  
+  paths_cache <- paths_cache[grepl(cachedate, paths_cache)]
+  
+  indata <- sapply(paths_indata, function(p){
     read.csv(file.path(path_foringest, p))
   })
   
-  goodpkeys <- allfiles$geoIndicators.csv$PrimaryKey
+  cache <- sapply(paths_cache, function(p){
+    readRDS(file.path(path_cache, p))
+  }) 
   
-  goodpkeys <- goodpkeys[!goodpkeys %in% geoInd_existing$PrimaryKey]
+  cache <- cache[sapply(cache, length) > 0]
   
-  allfiles_pkeysdropped <- sapply(allfiles, function(t){
-    t %>% dplyr::filter(PrimaryKey %in% goodpkeys)
-  })
+  names(cache) <- 
+    names(cache) %>% 
+    gsub(pattern = paste0(projectkey, "_"), replace = "") %>%
+    gsub(pattern = paste0("_", cachedate, ".rdata"), replace = "")
+    
+  names(indata) <-
+    names(indata) %>% 
+    gsub(pattern = ".csv", replace = "")
+  
+  outdata <- 
+    sapply(names(indata), function(nm){
+      c <- cache[[nm]]
+      n <- indata[[nm]]
+      
+      goodpkeys <- unique(c$PrimaryKey)
+      
+      out <- n %>% dplyr::filter(PrimaryKey %in% goodpkeys)
+      
+      return(out)
+    })
   
   if(!dir.exists(file.path(path_foringest, "/New Data Only"))) dir.create(file.path(path_foringest, "/New Data Only"))
   
-  sapply(1:length(allfiles), function(i){
-    write.csv(allfiles_pkeysdropped[[i]], file.path(path_foringest, "/New Data Only", names(allfiles)[i]), row.names = F)
-    return(allfiles_pkeysdropped[[i]])
+  sapply(1:length(outdata), function(i){
+    write.csv(outdata[[i]], paste0(file.path(path_foringest, "/New Data Only", names(indata)[i]), ".csv"), row.names = F)
   })
   
-  return(allfiles_pkeysdropped)
+  return(outdata)
 }
 
 #' @rdname ingest
