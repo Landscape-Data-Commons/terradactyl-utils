@@ -13,22 +13,22 @@ translate_schema <- function(
   projectkey,
   dropcols = T,
   verbose = T){
-  
+
   ### standardize names
   # colnames(matrix)[colnames(matrix) == fromcol] <- "terradactylAlias"
   # colnames(matrix)[colnames(matrix) == tocol] <- "ToColumn"
-  
+
   ### process the incoming matrix by assigning actions to take at each row
-  matrix_processed1 <- 
-    schema %>% 
+  matrix_processed1 <-
+    schema %>%
     dplyr::filter(Table == datatype) %>%
     dplyr::mutate(
       Field <- stringr::str_trim(Field, side = "both"),
     ) %>%
     dplyr::filter(Field != "" | terradactylAlias != "") %>%
     dplyr::select(terradactylAlias, Field)
-  
-  matrix_processed <- matrix_processed1 %>% 
+
+  matrix_processed <- matrix_processed1 %>%
     dplyr::mutate(
       DropColumn = matrix_processed1$terradactylAlias != "" & matrix_processed1$Field == "",
       AddColumn = matrix_processed1$Field != "" & matrix_processed1$terradactylAlias == "",
@@ -36,8 +36,8 @@ translate_schema <- function(
       NoAction = matrix_processed1$Field == matrix_processed1$terradactylAlias & !AddColumn & !DropColumn,
       Checksum = AddColumn + DropColumn + ChangeColumn + NoAction,
     )
-  
-    ## check for errors (if errors are here the function is not working)  
+
+    ## check for errors (if errors are here the function is not working)
   errors <-
     matrix_processed %>%
     dplyr::filter(Checksum != 1)
@@ -45,58 +45,58 @@ translate_schema <- function(
   if(nrow(errors) > 0) {print("Errors found in translation matrix. Debug function.")
                               return(errors)}
 
-  ChangeColumn <- 
-    matrix_processed %>% 
+  ChangeColumn <-
+    matrix_processed %>%
     dplyr::filter(ChangeColumn)
-  
-  AddColumn <- 
+
+  AddColumn <-
     matrix_processed %>%
     dplyr::filter(AddColumn)
-  
+
   DropColumn <-
     matrix_processed %>%
     dplyr::filter(DropColumn)
- 
+
   ## run translation and add data
   outdata <- data %>%
     dplyr::rename_at(
       ChangeColumn$terradactylAlias, ~ ChangeColumn$Field) %>%
-    `is.na<-`(AddColumn$Field)
-  
+    `is.na<-`(AddColumn$Field |> unique())
+
   # # drop columns from prior schema if enabled
   # if(dropcols){
   #   outdata <- outdata %>%
   #     dplyr::select_if(!colnames(.) %in% DropColumn$terradactylAlias)
   # }
-  
+
   # select only the tables in the out schema
   goodnames <- matrix_processed %>% dplyr::filter(Field != "") %>% dplyr::pull(Field)
-  
+
   if(verbose) {
     print(paste("Returning", length(goodnames), "columns"))
     print(dplyr::all_of(goodnames))
   }
-  
+
   outdata <- outdata %>%
     dplyr::select(dplyr::all_of(goodnames))
-  
-  
+
+
   outdata$ProjectKey <- projectkey
-  # 
+  #
   # # return messages if verbose
   # if(verbose) {
   #   print(paste0(nrow(ChangeColumn), " columns renamed"))
   #   print(ChangeColumn[,c("terradactylAlias", "Field")])}
-  # 
+  #
   # if(verbose) {
   #   print(paste0(nrow(AddColumn), " columns added"))
   #   print(AddColumn$Field)}
-  # 
+  #
   # if(verbose & dropcols) {
   #   print(paste0(nrow(DropColumn), " columns removed"))
   #   print(DropColumn$terradactylAlias)
   # }
-  
+
   return(outdata)
 }
 
